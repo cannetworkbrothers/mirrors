@@ -9,7 +9,7 @@
 #include "MCU_atmega8.h"
 
 
-void SPI_MasterTransmit(char cData)
+void mcu_atmega8::SPI_MasterTransmit(char cData)
 {
 	/* Запуск передачи данных */
 	SPDR = cData;

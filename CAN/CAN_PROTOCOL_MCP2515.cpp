@@ -9,7 +9,7 @@
 #include "CAN_PROTOCOL_MCP2515.h"
 
 
-unsigned char mcp2515_read_register(unsigned char address)
+unsigned char MCP2515::mcp2515_read_register(unsigned char address)
 
  {
 
