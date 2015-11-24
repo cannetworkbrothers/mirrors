@@ -10,6 +10,7 @@
 #define CAN_PROTOCOL_MCP2515_H_
 
 #include "mcu.h"
+#include <avr/io.h>
 
 // pin mapping
 
@@ -33,13 +34,14 @@ class MCP2515
 {
 	private:
 	
-	mcu mcu;
+	mcu mcu1;
 	
 	public:
 	
-	MCP2515( mcu type_mcu ) const { mcu = type_mcu};
+	MCP2515( mcu type_mcu) { mcu1 = type_mcu;};
 	
 	unsigned char mcp2515_read_register(unsigned char address);
+	void mcp2515_write_register(unsigned char address, unsigned char data);
 	
 	
 	};

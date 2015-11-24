@@ -9,7 +9,7 @@
 void read()
 {
 	
-	MCP2515.mcp2515_read_register(0x89);
+	
 	
 	
 }

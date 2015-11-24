@@ -14,7 +14,7 @@ class mcu
 {
 	public:
 	
-	virtual void SPI_MasterTransmit(char cData) = 0;
+	virtual unsigned char SPI_MasterTransmit(char cData) {};
 	
 	
 	};

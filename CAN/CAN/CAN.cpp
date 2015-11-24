@@ -7,6 +7,8 @@
 
 
 #include <avr/io.h>
+#include "Can_controller.h"
+#include "MCU_atmega8.h"
 
 int main(void)
 {
@@ -16,17 +18,17 @@ int main(void)
 		
 		unsigned char data_register;
 		
-		mcu_atmega8 mcu_atmega8;
-		MCP2515 mcp2515(mcu_atmega8);
+		mcu_atmega8 atmega8;
+		MCP2515 mcp2515_1(atmega8);
 		
 		
-		Can_interface Can_controller(mcu_atmega8, mcp2515);
+	    Can_controller can_interface(atmega8, mcp2515_1);
 		
-		Can_controller.init();
-		Can_controller.read();
+		can_interface.init();
+		can_interface.read();
 		
 		
 		
-		data_register = Can_controller.mcp2515_read_register(0x34);
+		
     }
 }

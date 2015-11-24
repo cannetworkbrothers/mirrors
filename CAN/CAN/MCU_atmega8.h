@@ -18,7 +18,7 @@ class mcu_atmega8:public mcu
 	
 	public:
 	
-	void SPI_MasterTransmit(char cData);
+	unsigned char SPI_MasterTransmit(char cData);
 		
 	};
 

@@ -9,17 +9,20 @@
 #ifndef CAN_CONTROLLER_H_
 #define CAN_CONTROLLER_H_
 
+#include "mcu.h"
+#include "CAN_PROTOCOL_MCP2515.h"
 
 class Can_controller
 {
 	
 	private:
-	mcu mcu;
-	can can;
+	mcu mcu1;
+	MCP2515 can;
 	public:
-	Can_controller(mcu d_mcu, can d_can) {mcu = d_mcu; c = d_can;};
-	void init();
-	void read();
+	Can_controller(mcu d_mcu, MCP2515 d_can) {mcu1 = d_mcu; can = d_can;};
+    
+	void init() {};
+	void read()  {};
 	
 	};
 
