@@ -19,7 +19,7 @@ int main(void)
 		unsigned char data_register;
 		
 		mcu_atmega8 atmega8;
-		MCP2515 mcp2515_1(atmega8);
+		Protocol_MCP2515 mcp2515_1(atmega8);
 		
 		
 	    Can_controller can_interface(atmega8, mcp2515_1);

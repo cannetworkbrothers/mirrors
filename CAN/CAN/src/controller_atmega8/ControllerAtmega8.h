@@ -6,19 +6,19 @@
  */ 
 
 
-#ifndef MCU_ATMEGA8_H_
-#define MCU_ATMEGA8_H_
-
 #include <avr/io.h>
-#include "mcu.h"
+#include "controller/can_controller.h"
 
-class mcu_atmega8:public mcu
+class ControllerAtmega8:public CanController
 {
 	private:
 	
 	public:
 	
+	unsigned void SPI_MasterInit(void);
 	unsigned char SPI_MasterTransmit(char cData);
+	unsigned void SPI_SlaveInit(void);
+	unsigned char SPI_SlaveReceive(void);
 		
 	};
 
