@@ -25,7 +25,7 @@ class Protocol_MCP2515: public ProtocolHandler
 	public:
 	
 	Protocol_MCP2515(){};
-	virtual ~Protocol_MCP2515() {};
+	~Protocol_MCP2515() {};
 	
 	void init();
 	bool getPin(PIN pin);

@@ -5,25 +5,29 @@
  *  Author: Admin
  */ 
 
+#ifndef CAN_USB_INTERFACE_H_
+#define CAN_USB_INTERFACE_H_
 
-#include "../protocol_handler/protocol_handler.h"
-#include "../controller/can_controller.h"
+#include "../protocol_mcp2515/can_protocol_mcp2515.h"
+#include "../controller_atmega8/controller_atmega8.h"
 
 
 class CAN_USB_INTERFACE
 
-	{
+{
+	private:
+	ControllerAtmega8 mcu_;
+	Protocol_MCP2515 can_protocol_;
+	
+	public:
+	CAN_USB_INTERFACE() {};
+	~CAN_USB_INTERFACE() {};
 		
-		private:
-		CanController mcu_;
-		ProtocolHandler can_protocol_;
-				
-		public:
-		virtual void init() = 0;
-		virtual unsigned char receiveMessage(ProtocolHandler cp, CanController mcu, canmsg_t * p_canmsg) = 0;
-		virtual unsigned char sendMessage(ProtocolHandler cp, CanController mcu, canmsg_t * p_canmsg) = 0;
+	void init();
+	unsigned char receiveMessage(canmsg_t * p_canmsg);
+	unsigned char sendMessage(canmsg_t * p_canmsg);
 		
-		};
+};
 
 
 #endif /* CAN_USB_INTERFACE_H_ */

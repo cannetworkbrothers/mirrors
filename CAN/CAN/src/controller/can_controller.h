@@ -13,9 +13,9 @@ class CanController
 	CanController() {}
 	virtual ~CanController() {}
 	
-	virtual unsigned void SPI_MasterInit(void) = 0;
+	virtual void SPI_MasterInit() = 0;
 	virtual unsigned char SPI_MasterTransmit(char cData) = 0;
-	virtual unsigned void SPI_SlaveInit(void) = 0;
-	virtual unsigned char SPI_SlaveReceive(void) = 0;
+	virtual void SPI_SlaveInit() = 0;
+	virtual unsigned char SPI_SlaveReceive() = 0;
 	
 };
