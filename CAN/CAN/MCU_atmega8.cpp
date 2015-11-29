@@ -9,7 +9,11 @@
 #include "MCU_atmega8.h"
 
 
+<<<<<<< HEAD:CAN/CAN/MCU_atmega8.cpp
 unsigned char mcu_atmega8::SPI_MasterTransmit(char cData)
+=======
+void SPI_MasterTransmit(char cData)
+>>>>>>> parent of b24555f... without 2 error:CAN/MCU_atmega8.cpp
 {
 	/* Запуск передачи данных */
 	SPDR = cData;

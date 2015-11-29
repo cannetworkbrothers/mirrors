@@ -12,9 +12,11 @@
 
 class mcu
 {
-	public:
 	
+<<<<<<< HEAD:CAN/CAN/mcu.h
 	virtual unsigned char SPI_MasterTransmit(char cData) {};
+=======
+>>>>>>> parent of b24555f... without 2 error:CAN/mcu.h
 	
 	
 	};
