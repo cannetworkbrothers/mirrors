@@ -20,7 +20,11 @@ class CAN_USB_INTERFACE
 	Protocol_MCP2515 can_protocol_;
 	
 	public:
-	CAN_USB_INTERFACE() {};
+	CAN_USB_INTERFACE() 
+	{
+		can_protocol_.connectSpiTransmitCallback(ControllerAtmega8::static_SPI_Master_Transmit, &mcu_);
+		
+	};
 	~CAN_USB_INTERFACE() {};
 		
 	void init();

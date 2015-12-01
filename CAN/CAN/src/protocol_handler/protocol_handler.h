@@ -8,7 +8,7 @@
 typedef unsigned char PIN;
 
 //Function pointer calls controller_spi_transmit that takes a char and returns a char
-typedef unsigned char (*controller_spi_transmit)(unsigned char);
+typedef unsigned char (*callback_spi_transmit_ptr)(void*, unsigned char);
 
 typedef struct
 {
@@ -24,21 +24,30 @@ typedef struct
 } canmsg_t;
 
 class ProtocolHandler
-{	
-	public:
-	ProtocolHandler() {}
-	virtual ~ProtocolHandler() {}
+{
+protected:
+	callback_spi_transmit_ptr controller_spi_transmit_;
+	void *controller_p;
+		
+public:
+	ProtocolHandler() {};
+	~ProtocolHandler() {};
     
+	void connectSpiTransmitCallback(callback_spi_transmit_ptr cb, void *p)
+	{
+		controller_spi_transmit_ = cb;
+		controller_p = p;
+	};
+	
 	virtual void init() = 0;
 	virtual bool getPin(PIN pin) = 0;
 	virtual void setPin(PIN pin, bool level) = 0;
-	virtual unsigned char readRegister(	unsigned char address, 
-										controller_spi_transmit spi_transmit) = 0;
+	virtual unsigned char readRegister(	unsigned char address) = 0;
 	virtual void writeRegister(unsigned char address) = 0;
 	
 	//returns true on success reception, false otherwise
-	virtual bool receiveMessage(canmsg_t * p_canmsg, controller_spi_transmit spi_transmit) = 0;
+	virtual bool receiveMessage(canmsg_t * p_canmsg) = 0;
 	
 	//returns true on success transmission, false otherwise
-	virtual bool writeMessage(canmsg_t * p_canmsg, controller_spi_transmit spi_transmit) = 0;
+	virtual bool writeMessage(canmsg_t * p_canmsg) = 0;
 	};

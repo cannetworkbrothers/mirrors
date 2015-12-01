@@ -19,10 +19,8 @@
 #define MCP2515_SS_1 PORTB |= (1 << PINB2)
 
 class Protocol_MCP2515: public ProtocolHandler
-{
-	private:
-	
-	public:
+{	
+public:
 	
 	Protocol_MCP2515(){};
 	~Protocol_MCP2515() {};
@@ -30,10 +28,10 @@ class Protocol_MCP2515: public ProtocolHandler
 	void init();
 	bool getPin(PIN pin);
 	void setPin(PIN pin, bool level);
-	unsigned char readRegister(unsigned char address, controller_spi_transmit spi_transmit);
+	unsigned char readRegister(unsigned char address);
 	void writeRegister(unsigned char address);
-	bool receiveMessage(canmsg_t * p_canmsg, controller_spi_transmit spi_transmit);
-	bool writeMessage(canmsg_t * p_canmsg, controller_spi_transmit spi_transmit);
+	bool receiveMessage(canmsg_t * p_canmsg);
+	bool writeMessage(canmsg_t * p_canmsg);
 	
 	};
 

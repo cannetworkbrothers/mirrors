@@ -15,9 +15,5 @@ class ControllerAtmega8 : public CanController
 	ControllerAtmega8() {};
 	~ControllerAtmega8() {};
 	
-	void SPI_MasterInit();
-	unsigned char SPI_MasterTransmit(char cData);
-	void SPI_SlaveInit();
-	unsigned char SPI_SlaveReceive();
-		
+	unsigned char SPI_MasterTransmit(char cData);	
 };

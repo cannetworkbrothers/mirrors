@@ -12,5 +12,5 @@ void CAN_USB_INTERFACE::init(){
 }
 
 unsigned char CAN_USB_INTERFACE::receiveMessage(canmsg_t * p_canmsg){
-	cp.receiveMessage(p_canmsg, &mcu.SPI_MasterTransmit());
+	can_protocol_.receiveMessage(p_canmsg);
 }

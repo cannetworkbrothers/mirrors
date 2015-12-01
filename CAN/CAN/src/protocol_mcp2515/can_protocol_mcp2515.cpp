@@ -8,7 +8,18 @@
 
 #include "can_protocol_mcp2515.h"
 
-void Protocol_MCP2515::setPin(PIN pin, bool level){
+void Protocol_MCP2515::init()
+{
+	
+}
+
+bool Protocol_MCP2515::getPin(PIN pin)
+{
+	return true;
+}
+
+void Protocol_MCP2515::setPin(PIN pin, bool level)
+{
 	if (level == true)
 	{
 		pin = 0;
@@ -20,27 +31,39 @@ void Protocol_MCP2515::setPin(PIN pin, bool level){
 	
 }
 
-unsigned char Protocol_MCP2515::readRegister(unsigned char address, controller_spi_transmit spi_transmit){
+unsigned char Protocol_MCP2515::readRegister(unsigned char address){
 	unsigned char data;
 	
 	//Set CS pin to low level
 	setPin(MCP2515_CS, false);
 	
-	spi_transmit(MCP2515_CMD_READ);
-	spi_transmit(address);
+	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, MCP2515_CMD_READ);
+	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, address);
 	
-	data = spi_transmit(0xFF);
+	data = ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xFF);
 	
 	setPin(MCP2515_CS, true);
 	
 	return data;
 }
 
-bool Protocol_MCP2515::receiveMessage(canmsg_t * p_canmsg, controller_spi_transmit spi_transmit){
+void Protocol_MCP2515::writeRegister(unsigned char address)
+{
+	//just a stub
+}
+
+bool Protocol_MCP2515::receiveMessage(canmsg_t * p_canmsg){
 	unsigned char address = 0x40; // for example
 	
 	setPin(MCP2515_CS, false);
-	spi_transmit(MCP2515_CMD_READ | address);
-	p_canmsg->data = spi_transmit(0xff);
+	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, MCP2515_CMD_READ | address);
+	p_canmsg->dlc = ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
 	setPin(MCP2515_CS, true);
+	return true;
+}
+
+bool Protocol_MCP2515::writeMessage(canmsg_t * p_canmsg)
+{
+	//just a stub
+	return true;
 }
