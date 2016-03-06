@@ -22,4 +22,4 @@
 *.srec
 
 #User Specific Files
-.atsuo
+CAN\.vs\CAN\v14\*
