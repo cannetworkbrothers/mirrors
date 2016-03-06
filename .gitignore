@@ -22,4 +22,4 @@
 *.srec
 
 #User Specific Files
-CAN\.vs\CAN\v14\*
+.CAN\.vs\CAN\v14\*
