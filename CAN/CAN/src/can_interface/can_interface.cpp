@@ -10,7 +10,6 @@
 void CAN_USB_INTERFACE::init(){
 	
 }
-
 unsigned char CAN_USB_INTERFACE::receiveMessage(canmsg_t * p_canmsg){
 	can_protocol_.receiveMessage(p_canmsg);
 	

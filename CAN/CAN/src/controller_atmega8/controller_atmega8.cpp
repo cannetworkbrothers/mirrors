@@ -11,8 +11,11 @@
 
 unsigned char ControllerAtmega8::SPI_MasterTransmit(char cData){
 	/* Start transmission*/
-	SPDR = cData;														// spi data register
+	SPDR = cData;
 	
 	/* Wait for transmission complete */
-	while(!(SPSR & (1<<SPIF))) {};										// spi status register
+	while(!(SPSR & (1<<SPIF))) {};
+	
+	return SPDR;
 };
+					
