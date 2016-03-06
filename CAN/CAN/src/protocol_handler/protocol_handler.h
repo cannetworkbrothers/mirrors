@@ -43,11 +43,13 @@ public:
 	virtual bool getPin(PIN pin) = 0;
 	virtual void setPin(PIN pin, bool level) = 0;
 	virtual unsigned char readRegister(	unsigned char address) = 0;
-	virtual void writeRegister(unsigned char address) = 0;
+	virtual void writeRegister(unsigned char address, unsigned char data) = 0;
 	
 	//returns true on success reception, false otherwise
 	virtual bool receiveMessage(canmsg_t * p_canmsg) = 0;
+	virtual unsigned char sendMessage(canmsg_t * p_canmsg) = 0;
 	
-	//returns true on success transmission, false otherwise
-	virtual bool writeMessage(canmsg_t * p_canmsg) = 0;
+	virtual bool writeMessage(canmsg_t * p_canmsg) =0;
+	
+	
 	};

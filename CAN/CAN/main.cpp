@@ -19,6 +19,8 @@ int main(void)
 		
 		can_interface.init();
 		can_interface.receiveMessage(&can_message_buffer);
+		
+		
 
     }
 }
