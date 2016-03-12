@@ -5,6 +5,7 @@
  * Author : Igor
  */ 
 
+#include "main.hpp"
 #include <avr/io.h>
 #include "src/can_interface/can_interface.h"
 

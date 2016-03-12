@@ -28,7 +28,7 @@ class CAN_USB_INTERFACE
 	~CAN_USB_INTERFACE() {};
 		
 	void init();
-	bool receiveMessage(canmsg_t * p_canmsg);
+	unsigned char receiveMessage(canmsg_t * p_canmsg);
 	bool sendMessage(canmsg_t * p_canmsg);
 		
 };
