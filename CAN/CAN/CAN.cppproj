@@ -174,12 +174,19 @@
     <Compile Include="src\protocol_mcp2515\mcp2515.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\usart\usart.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\usart\usart.hpp">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src" />
     <Folder Include="src\controller" />
     <Folder Include="src\controller_atmega8" />
     <Folder Include="src\can_interface" />
+    <Folder Include="src\usart" />
     <Folder Include="src\protocol_mcp2515" />
     <Folder Include="src\protocol_handler" />
   </ItemGroup>

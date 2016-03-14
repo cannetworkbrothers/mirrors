@@ -37,6 +37,7 @@ SUBDIRS :=  \
 ../src/controller \
 ../src/controller_atmega8 \
 ../src/can_interface \
+../src/usart \
 ../src/protocol_mcp2515 \
 ../src/protocol_handler
 
@@ -46,7 +47,8 @@ C_SRCS +=  \
 ../main.cpp \
 ../src/can_interface/can_interface.cpp \
 ../src/controller_atmega8/controller_atmega8.cpp \
-../src/protocol_mcp2515/can_protocol_mcp2515.cpp
+../src/protocol_mcp2515/can_protocol_mcp2515.cpp \
+../src/usart/usart.cpp
 
 
 PREPROCESSING_SRCS += 
@@ -59,25 +61,29 @@ OBJS +=  \
 main.o \
 src/can_interface/can_interface.o \
 src/controller_atmega8/controller_atmega8.o \
-src/protocol_mcp2515/can_protocol_mcp2515.o
+src/protocol_mcp2515/can_protocol_mcp2515.o \
+src/usart/usart.o
 
 OBJS_AS_ARGS +=  \
 main.o \
 src/can_interface/can_interface.o \
 src/controller_atmega8/controller_atmega8.o \
-src/protocol_mcp2515/can_protocol_mcp2515.o
+src/protocol_mcp2515/can_protocol_mcp2515.o \
+src/usart/usart.o
 
 C_DEPS +=  \
 main.d \
 src/can_interface/can_interface.d \
 src/controller_atmega8/controller_atmega8.d \
-src/protocol_mcp2515/can_protocol_mcp2515.d
+src/protocol_mcp2515/can_protocol_mcp2515.d \
+src/usart/usart.d
 
 C_DEPS_AS_ARGS +=  \
 main.d \
 src/can_interface/can_interface.d \
 src/controller_atmega8/controller_atmega8.d \
-src/protocol_mcp2515/can_protocol_mcp2515.d
+src/protocol_mcp2515/can_protocol_mcp2515.d \
+src/usart/usart.d
 
 OUTPUT_FILE_PATH +=CAN.elf
 
@@ -93,6 +99,8 @@ LINKER_SCRIPT_DEP+=
 
 
 # AVR32/GNU C Compiler
+
+
 
 
 
@@ -124,6 +132,13 @@ src/controller_atmega8/%.o: ../src/controller_atmega8/%.cpp
 	
 
 src/protocol_mcp2515/%.o: ../src/protocol_mcp2515/%.cpp
+	@echo Building file: $<
+	@echo Invoking: AVR8/GNU C Compiler : 4.9.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-g++.exe$(QUOTE) -funsigned-char -funsigned-bitfields -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.0.90\include"  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega8 -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.0.90\gcc\dev\atmega8" -c -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	@echo Finished building: $<
+	
+
+src/usart/%.o: ../src/usart/%.cpp
 	@echo Building file: $<
 	@echo Invoking: AVR8/GNU C Compiler : 4.9.2
 	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-g++.exe$(QUOTE) -funsigned-char -funsigned-bitfields -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.0.90\include"  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega8 -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.0.90\gcc\dev\atmega8" -c -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 

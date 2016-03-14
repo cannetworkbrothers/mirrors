@@ -10,3 +10,5 @@ src\controller_atmega8\controller_atmega8.cpp
 
 src\protocol_mcp2515\can_protocol_mcp2515.cpp
 
+src\usart\usart.cpp
+
