@@ -18,7 +18,7 @@ int main(void)
 		CAN_USB_INTERFACE can_interface;
 		
 		can_interface.init();
-		can_interface.receiveMessage(&can_message_buffer);
+		can_interface.sendMessage(&can_message_buffer);
 		
 		
 

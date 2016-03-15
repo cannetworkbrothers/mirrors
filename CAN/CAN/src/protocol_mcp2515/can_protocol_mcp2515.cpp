@@ -7,6 +7,8 @@
 
 
 #include "can_protocol_mcp2515.h"
+#include "math.h"
+
 
 void Protocol_MCP2515::init()
 {
@@ -114,6 +116,21 @@ void Protocol_MCP2515::writeRegister(unsigned char address, unsigned char data)
 	//just a stub
 }
 
+void Protocol_MCP2515::mcp2515_bit_modify(unsigned char address, unsigned char mask, unsigned char data) {
+
+	// set CS pin to low lewel
+	setPin(MCP2515_CS, false);
+	
+	
+	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, MCP2515_CMD_BIT_MODIFY);
+	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, address);
+	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, mask);
+	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, data);
+	
+	// release SS
+	setPin(MCP2515_CS, true);
+}
+
 unsigned char Protocol_MCP2515::mcp2515_read_status() {
 
 	// set CS pin to low lewel
@@ -144,10 +161,15 @@ unsigned char Protocol_MCP2515::sendMessage(canmsg_t * p_canmsg) {
  unsigned char status = mcp2515_read_status();
  unsigned char address_load_buffer;
  unsigned char length;
+
  
  // check length
  length = p_canmsg->dlc;
  if (length > 8) length = 8;
+ 
+
+
+ 
  
   // get offest address of next free tx buffer  TXREQ - Message Transmit Request bit 
 	//Buffer is currently pending transmission or Buffer is not currently pending transmission
@@ -226,8 +248,36 @@ unsigned char Protocol_MCP2515::sendMessage(canmsg_t * p_canmsg) {
    
    // release SS
    setPin(MCP2515_CS, true);
+   // check if interrupt
+   unsigned char INTERRUPT_FLAGS = readRegister(CANINTF);
+   
+   // check empty tx buffers
+   
+   while((INTERRUPT_FLAGS && CAN_TX0IF_BIT == 0) | (INTERRUPT_FLAGS && CAN_TX1IF_BIT == 0 )| (INTERRUPT_FLAGS && CAN_TX2IF_BIT == 0)) {
+	   
+	  //  check error massage tx
+	  INTERRUPT_FLAGS = readRegister(CANINTF);
+	   if(INTERRUPT_FLAGS && CAN_MERRF_BIT ==1)  {
+		   mcp2515_bit_modify(CANINTF,CAN_MERRF_BIT,0 );
+		   return 0;
+		   
+	   }
+	   
+	  }
+	  // again check error massage
+	   if(INTERRUPT_FLAGS && CAN_MERRF_BIT ==1)  {
+		   mcp2515_bit_modify(CANINTF,CAN_MERRF_BIT,0 );
+		   return 0;
+	   }
+	  // set flag interrupt when buffer is empty
+	  INTERRUPT_FLAGS = readRegister(CANINTF);
+	  if(INTERRUPT_FLAGS && CAN_TX0IF_BIT == 1) mcp2515_bit_modify(CANINTF, CAN_TX0IF_BIT, 0);
+	  if(INTERRUPT_FLAGS && CAN_TX1IF_BIT == 1) mcp2515_bit_modify(CANINTF, CAN_TX1IF_BIT, 0);
+	  if(INTERRUPT_FLAGS && CAN_TX2IF_BIT == 1) mcp2515_bit_modify(CANINTF, CAN_TX2IF_BIT, 0);
    
    return 1;
+   
+   
    
 }
 
