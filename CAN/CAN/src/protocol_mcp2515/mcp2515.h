@@ -53,6 +53,14 @@
 #define RTS_TXB_ALL     0b00000111 // Отправить сообщения из всех буферов
 #define MCP2515_CMD_READ_STATUS 0xA0
 #define MCP2515_CMD_BIT_MODIFY 0x05
+#define MCP2515_CMD_RX_STATUS 0xb0
+#define Message_in_RX0 0x40
+#define Message_in_RX1 0x80
+#define Buffer_RX0 0x00  // mask for calculate and select buffer rx0 within command READ RX BUFFER INSTRUCTION
+#define Buffer_RX1 0x04 // for rx1
+#define MCP2515_CMD_READ_RX 0x90 // read in buffer rx0 
+
+
 
 
 
@@ -251,6 +259,8 @@
 #define Exp_intr3          	0x08     // Expansion IO interrupt for BUTT 4
 #define Exp_intr4          	0x10     // Expansion IO interrupt for BUTT 5
 #define Exp_intr2          	0x04     // Expansion IO interrupt for BUTT 5
+#define MCP2515_REG_CANINTF 0x2C    // adress register flags interrupgs can int flags
+
 
 #define PG0                	0x01     // Use Port G.0 bit for  "CAN Packet Received"
 #define PG0bit             	0x00     // Port G.0 bit position

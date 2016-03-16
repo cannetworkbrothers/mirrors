@@ -43,6 +43,7 @@ public:
 	bool receiveMessage(canmsg_t * p_canmsg);
 	unsigned char sendMessage(canmsg_t * p_canmsg);
 	bool writeMessage(canmsg_t * p_canmsg);
+	unsigned char mcp2515_rx_status();
 	
 	
 	};
