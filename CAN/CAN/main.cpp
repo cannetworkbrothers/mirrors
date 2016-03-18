@@ -11,7 +11,7 @@
 #if USART_SUPPORT == ON
 	#include "src/usart/usart.hpp"
 	#include <util/delay.h>
-	#include <stdlib.h>
+	#include <stdio.h>
 #endif
 
 int main(void)
@@ -27,7 +27,7 @@ int main(void)
 		USART Logger = USART();
 		char msg[] = "HelloIgor. ";
 		int i = 0;
-		char * ptr_index = NULL;
+		char* ptr_index = 0;
 	#endif
     
 	//Main loop
@@ -35,8 +35,8 @@ int main(void)
     {
 		//can_interface.receiveMessage(&can_message_buffer);
 		Logger.Write(msg);
-		itoa(i, ptr_index,10);
-		Logger.WriteLine(ptr_index);
+		ptr_index = atoi(i);
+		Logger.WriteLine();
 		_delay_ms(100);
 		i++;
     }
