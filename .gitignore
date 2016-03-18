@@ -9,7 +9,7 @@
 # only prefixed by an `at`.
 
 #Build Directories
-[Dd]ebug/
+./CAN/CAN[Dd]ebug/
 [Rr]elease/
 
 #Build Results
