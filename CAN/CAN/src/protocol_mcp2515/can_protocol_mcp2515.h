@@ -39,9 +39,11 @@ public:
 	void mcp2515_set_bittiming(unsigned char cnf1, unsigned char cnf2, unsigned char cnf3);
 	unsigned char readRegister(unsigned char address);
 	void writeRegister(unsigned char address, unsigned char data);
+	void mcp2515_bit_modify(unsigned char address, unsigned char mask, unsigned char data);
 	bool receiveMessage(canmsg_t * p_canmsg);
 	unsigned char sendMessage(canmsg_t * p_canmsg);
 	bool writeMessage(canmsg_t * p_canmsg);
+	unsigned char mcp2515_rx_status();
 	
 	
 	};

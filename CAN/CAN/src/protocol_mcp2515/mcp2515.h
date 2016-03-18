@@ -13,6 +13,12 @@
 // pin mapping
 #define MCP2515_CS PORTC0
 
+// can massage frame definitions
+
+#define mask_sid0_sid1_sid2 0b11100000
+
+#define extended_identifer_massage_length 29
+
 // standard timing definitions
 #define MCP2515_TIMINGS_10K  0xfb, 0xad, 0x06	// PropSeg=6Tq, PS1=6Tq, PS2=7Tq, SamplePoint=65%, SJW=4
 #define MCP2515_TIMINGS_20K  0xdd, 0xad, 0x06   // PropSeg=6Tq, PS1=6Tq, PS2=7Tq, SamplePoint=65%, SJW=4
@@ -46,6 +52,16 @@
 #define RTS_TXB2        0b00000100 // Отправить сообщение из буфера 3
 #define RTS_TXB_ALL     0b00000111 // Отправить сообщения из всех буферов
 #define MCP2515_CMD_READ_STATUS 0xA0
+#define MCP2515_CMD_BIT_MODIFY 0x05
+#define MCP2515_CMD_RX_STATUS 0xb0
+#define Message_in_RX0 0x40
+#define Message_in_RX1 0x80
+#define Buffer_RX0 0x00  // mask for calculate and select buffer rx0 within command READ RX BUFFER INSTRUCTION
+#define Buffer_RX1 0x04 // for rx1
+#define MCP2515_CMD_READ_RX 0x90 // read in buffer rx0 
+
+
+
 
 
 // register definitions
@@ -177,7 +193,7 @@
 #define CAN_TX2IF_BIT         0x10  // Tx 2 buffer empty flag
 #define CAN_ERRIF_BIT         0x20  // Error interrupt flag
 #define CAN_WAKIF_BIT         0x40  // Error interrupt flag
-#define CAN_MERIF_BIT         0x80  // Error interrupt flag
+#define CAN_MERRF_BIT         0x80  // Error interrupt flag
 
 // CAN Load Tx Buffer bit definitions
 #define TXB0SIDH					0x00
@@ -243,6 +259,8 @@
 #define Exp_intr3          	0x08     // Expansion IO interrupt for BUTT 4
 #define Exp_intr4          	0x10     // Expansion IO interrupt for BUTT 5
 #define Exp_intr2          	0x04     // Expansion IO interrupt for BUTT 5
+#define MCP2515_REG_CANINTF 0x2C    // adress register flags interrupgs can int flags
+
 
 #define PG0                	0x01     // Use Port G.0 bit for  "CAN Packet Received"
 #define PG0bit             	0x00     // Port G.0 bit position
@@ -252,8 +270,24 @@
 #define CLEARBIT           	0x00     // Clear bit control
 
 
+// extended identifier bit
 
-
+#define EID0 0 
+#define EID1 1 
+#define EID2 2
+#define EID3 3 
+#define EID4 4 
+#define EID5 5
+#define EID6 6
+#define EID7 7
+#define EID8 8
+#define EID9 9 
+#define EID10 10 
+#define EID11 11
+#define EID12 12
+#define EID13 13
+#define EID14 14
+#define EID15 15 
 
 
 #endif /* MCP2515_H_ */

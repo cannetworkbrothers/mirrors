@@ -7,6 +7,8 @@
 
 
 #include "can_protocol_mcp2515.h"
+#include "math.h"
+
 
 void Protocol_MCP2515::init()
 {
@@ -114,6 +116,21 @@ void Protocol_MCP2515::writeRegister(unsigned char address, unsigned char data)
 	//just a stub
 }
 
+void Protocol_MCP2515::mcp2515_bit_modify(unsigned char address, unsigned char mask, unsigned char data) {
+
+	// set CS pin to low lewel
+	setPin(MCP2515_CS, false);
+	
+	
+	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, MCP2515_CMD_BIT_MODIFY);
+	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, address);
+	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, mask);
+	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, data);
+	
+	// release SS
+	setPin(MCP2515_CS, true);
+}
+
 unsigned char Protocol_MCP2515::mcp2515_read_status() {
 
 	// set CS pin to low lewel
@@ -128,26 +145,98 @@ unsigned char Protocol_MCP2515::mcp2515_read_status() {
 	return status;
 }
 
-bool Protocol_MCP2515::receiveMessage(canmsg_t * p_canmsg){
-	unsigned char address = 0x40; // for example
+unsigned char Protocol_MCP2515::mcp2515_rx_status(){
 	
+	// function implementation command rx status in SPI interface. This command return whether message any buffers and wich format can message
+	
+	// set CS pin to low lewel
 	setPin(MCP2515_CS, false);
-	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, READ | address);
-	p_canmsg->dlc = ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
+	
+	
+	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, MCP2515_CMD_RX_STATUS);
+	unsigned char status = ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
+	
+	// release SS
 	setPin(MCP2515_CS, true);
-	return true;
+	
+	return status;
+	
+	
 }
 
+bool Protocol_MCP2515::receiveMessage(canmsg_t * p_canmsg){
+		
+	unsigned char status = mcp2515_rx_status();
+	unsigned char Mask_address_rx_buffer;
+	
+	if(status == Message_in_RX0) Mask_address_rx_buffer = Buffer_RX0;
+	else if(status == Message_in_RX1) Mask_address_rx_buffer = Buffer_RX1;
+	else return 0;
+	
+	// store flags
+	p_canmsg->flags.rtr = (status >> 3) & 0x01;
+	p_canmsg->flags.extended = (status >> 4) & 0x01;
+
+	
+	setPin(MCP2515_CS, false);
+	
+	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, MCP2515_CMD_READ_RX | Mask_address_rx_buffer);
+	
+	if(p_canmsg->flags.extended){
+		p_canmsg->id = (unsigned long) ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff) << 21;
+		 unsigned long temp = ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
+		 p_canmsg->id |= (temp & 0xe0) << 13;
+		 p_canmsg->id |= (temp & 0x03) << 16;
+		 p_canmsg->id |= (unsigned long) ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff) << 8;
+		 p_canmsg->id |= (unsigned long)  ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
+		 } else {
+		 p_canmsg->id =  (unsigned long)  ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff) << 3;
+		 p_canmsg->id |= (unsigned long)  ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff) >> 5;
+		  ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
+		  ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
+	 }
+	 
+	 // get length and data
+	
+	 p_canmsg->dlc = ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff) & 0x0f;
+	 if (!p_canmsg->flags.rtr) {
+		 unsigned char i;
+		 unsigned char length = p_canmsg->dlc;
+		 if (length > 8) length = 8;
+		 for (i = 0; i < length; i++) {
+			 p_canmsg->data[i] = ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
+		 }
+	 }
+     // reset flag rx buffers register when empty
+	 
+	 if (Mask_address_rx_buffer == 0) Mask_address_rx_buffer = 1;
+	 else Mask_address_rx_buffer = 2;
+	 mcp2515_bit_modify(MCP2515_REG_CANINTF, Mask_address_rx_buffer, 0);
+	 
+	 
+ // release SS
+ // set CS pin to low lewel
+ setPin(MCP2515_CS, false);
+	 return 1;
+	 }
+
+	
+	
 
 unsigned char Protocol_MCP2515::sendMessage(canmsg_t * p_canmsg) {
 
  unsigned char status = mcp2515_read_status();
  unsigned char address_load_buffer;
  unsigned char length;
+
  
  // check length
  length = p_canmsg->dlc;
  if (length > 8) length = 8;
+ 
+
+
+ 
  
   // get offest address of next free tx buffer  TXREQ - Message Transmit Request bit 
 	//Buffer is currently pending transmission or Buffer is not currently pending transmission
@@ -226,8 +315,36 @@ unsigned char Protocol_MCP2515::sendMessage(canmsg_t * p_canmsg) {
    
    // release SS
    setPin(MCP2515_CS, true);
+   // check if interrupt
+   unsigned char INTERRUPT_FLAGS = readRegister(CANINTF);
+   
+   // check empty tx buffers
+   
+   while((INTERRUPT_FLAGS && CAN_TX0IF_BIT == 0) | (INTERRUPT_FLAGS && CAN_TX1IF_BIT == 0 )| (INTERRUPT_FLAGS && CAN_TX2IF_BIT == 0)) {
+	   
+	  //  check error massage tx
+	  INTERRUPT_FLAGS = readRegister(CANINTF);
+	   if(INTERRUPT_FLAGS && CAN_MERRF_BIT ==1)  {
+		   mcp2515_bit_modify(CANINTF,CAN_MERRF_BIT,0 );
+		   return 0;
+		   
+	   }
+	   
+	  }
+	  // again check error massage
+	   if(INTERRUPT_FLAGS && CAN_MERRF_BIT ==1)  {
+		   mcp2515_bit_modify(CANINTF,CAN_MERRF_BIT,0 );
+		   return 0;
+	   }
+	  // set flag interrupt when buffer is empty
+	  INTERRUPT_FLAGS = readRegister(CANINTF);
+	  if(INTERRUPT_FLAGS && CAN_TX0IF_BIT == 1) mcp2515_bit_modify(CANINTF, CAN_TX0IF_BIT, 0);
+	  if(INTERRUPT_FLAGS && CAN_TX1IF_BIT == 1) mcp2515_bit_modify(CANINTF, CAN_TX1IF_BIT, 0);
+	  if(INTERRUPT_FLAGS && CAN_TX2IF_BIT == 1) mcp2515_bit_modify(CANINTF, CAN_TX2IF_BIT, 0);
    
    return 1;
+   
+   
    
 }
 
