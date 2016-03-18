@@ -9,7 +9,7 @@
 # only prefixed by an `at`.
 
 #Build Directories
-./CAN/CAN/[Dd]ebug/
+[Dd]ebug/
 [Rr]elease/
 
 #Build Results
@@ -22,4 +22,4 @@
 *.srec
 
 #User Specific Files
-.CAN\.vs\CAN\v14\*
+.\CAN\.vs\CAN\v14\*
