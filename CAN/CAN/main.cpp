@@ -7,38 +7,31 @@
 
 #include "main.hpp"
 #include "src/can_interface/can_interface.h"
-
-#if USART_SUPPORT == ON
-	#include "src/usart/usart.hpp"
-	#include <util/delay.h>
-	#include <stdio.h>
-#endif
+#include <avr/delay.h>
 
 int main(void)
 {
 	DDRB = 0b00000010; // PB1 as output
 	PORTB = 0b00000010; // light the LED for fun :)
 
-	canmsg_t can_message_buffer;
-	CAN_USB_INTERFACE can_interface;
-	can_interface.init();
+// 	canmsg_t can_message_buffer;
+// 	CAN_USB_INTERFACE can_interface;
+// 	can_interface.init();
 	
-	#if USART_SUPPORT == ON
-		USART Logger = USART();
-		char msg[] = "HelloIgor. ";
-		int i = 0;
-		char* ptr_index = 0;
-	#endif
+	
+	char msg[] = "HelloIgor. ";
+	/*USART logger_var;*/
+	CREATE_LOGGER(logger)
     
 	//Main loop
     while (1) 
     {
 		//can_interface.receiveMessage(&can_message_buffer);
-		Logger.Write(msg);
-		ptr_index = atoi(i);
-		Logger.WriteLine();
-		_delay_ms(100);
-		i++;
+		LOG(logger, msg)
+		/*logger_var.WriteLine(msg);*/
+		_delay_ms(1000);
+		//invert PB1
+		PORTB = PORTB^0b00000010;
     }
 }
 

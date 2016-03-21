@@ -44,6 +44,6 @@ void USART::Write(char * ptr_line) {
 
 void USART::WriteLine(char * ptr_string) {
 	Write(ptr_string);
-	//SendFrame((unsigned int) '\n'); // send "goto new line"
+	SendFrame((unsigned int) '\n'); // send "goto new line"
 	SendFrame((unsigned int) '\r'); // send "carriage return"
 }
