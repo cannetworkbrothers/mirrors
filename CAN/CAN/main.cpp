@@ -18,9 +18,7 @@ int main(void)
 // 	CAN_USB_INTERFACE can_interface;
 // 	can_interface.init();
 	
-	
-	char msg[] = "HelloIgor. ";
-	/*USART logger_var;*/
+/*	char msg[] = "HelloIgor. ";*/
 	CREATE_LOGGER(logger)
     
 	//Main loop
