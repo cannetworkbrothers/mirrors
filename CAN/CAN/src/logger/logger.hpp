@@ -18,5 +18,14 @@
 	#define LOG(logger_var, msg)
 #endif
 
+#include <stddef.h>
+
+void *	operator new(size_t size);
+void	operator delete(void * ptr);
+
+int		how_many_digits(int number, int base);
+void	reverse(char s[], int length);
+char*	int_to_string(int num, char* str, int base);
+char*	strmerge(char* start_str_ptr, char* end_str_ptr, char* target_str_ptr);
 
 #endif /* LOGGER_H_ */

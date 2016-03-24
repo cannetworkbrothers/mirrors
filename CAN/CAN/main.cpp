@@ -8,6 +8,7 @@
 #include "main.hpp"
 #include "src/can_interface/can_interface.h"
 #include <avr/delay.h>
+#include <stdlib.h>
 
 int main(void)
 {
@@ -18,18 +19,23 @@ int main(void)
 // 	CAN_USB_INTERFACE can_interface;
 // 	can_interface.init();
 	
-/*	char msg[] = "HelloIgor. ";*/
+	char msg[] = "HelloIgor. ";
+	char* portb_value = (char*) malloc(8);
 	CREATE_LOGGER(logger)
     
 	//Main loop
     while (1) 
     {
+		int_to_string(PORTB, portb_value, 2);
+		char* out_message = (char*) malloc(20);
+		strmerge(msg, portb_value, out_message);
 		//can_interface.receiveMessage(&can_message_buffer);
-		LOG(logger, msg)
+		LOG(logger, out_message)
 		/*logger_var.WriteLine(msg);*/
 		_delay_ms(1000);
 		//invert PB1
-		PORTB = PORTB^0b00000010;
+		PORTB ^= 0b00000010;
+		free(out_message);
     }
 }
 
