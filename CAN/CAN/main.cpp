@@ -20,14 +20,15 @@ int main(void)
 // 	can_interface.init();
 	
 	char msg[] = "HelloIgor. ";
-	char* portb_value = (char*) malloc(8);
+	char portb_value[9];
+// 	char* out_message = (char*) malloc(30);
 	CREATE_LOGGER(logger)
     
 	//Main loop
     while (1) 
     {
-		int_to_string(PORTB, portb_value, 2);
-		char* out_message = (char*) malloc(20);
+		itoa(PORTB, portb_value, 2);
+		char* out_message = (char*) malloc(30);
 		strmerge(msg, portb_value, out_message);
 		//can_interface.receiveMessage(&can_message_buffer);
 		LOG(logger, out_message)
