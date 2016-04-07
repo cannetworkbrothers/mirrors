@@ -10,7 +10,7 @@
 #include "math.h"
 
 
-unsigned char Protocol_MCP2515::init(const unsigned char canSpeed)
+unsigned char ProtocolHandlerMcp2515::init(const unsigned char canSpeed)
 {
 	
 	//Set CS pin to low level
@@ -58,7 +58,7 @@ unsigned char Protocol_MCP2515::init(const unsigned char canSpeed)
  *
  * This function has only affect if mcp2515 is in configuration mode
  */
-void Protocol_MCP2515::mcp2515_set_bittiming(unsigned char cnf1, unsigned char cnf2, unsigned char cnf3) {
+void ProtocolHandlerMcp2515::mcp2515_set_bittiming(unsigned char cnf1, unsigned char cnf2, unsigned char cnf3) {
 
 
     writeRegister(MCP2515_REG_CNF1, cnf1);
@@ -66,12 +66,12 @@ void Protocol_MCP2515::mcp2515_set_bittiming(unsigned char cnf1, unsigned char c
     writeRegister(MCP2515_REG_CNF3, cnf3);
 }
 
-bool Protocol_MCP2515::getPin(PIN pin)
+bool ProtocolHandlerMcp2515::getPin(PIN pin)
 {
 	return true;
 }
 
-void Protocol_MCP2515::setPin(PIN pin, bool level)
+void ProtocolHandlerMcp2515::setPin(PIN pin, bool level)
 {
 	if (level == true)
 	{
@@ -84,7 +84,7 @@ void Protocol_MCP2515::setPin(PIN pin, bool level)
 	
 }
 
-unsigned char Protocol_MCP2515::readRegister(unsigned char address){
+unsigned char ProtocolHandlerMcp2515::readRegister(unsigned char address){
 	unsigned char data;
 	
 	//Set CS pin to low level
@@ -100,7 +100,7 @@ unsigned char Protocol_MCP2515::readRegister(unsigned char address){
 	return data;
 }
 
-void Protocol_MCP2515::writeRegister(unsigned char address, unsigned char data)
+void ProtocolHandlerMcp2515::writeRegister(unsigned char address, unsigned char data)
 {
 	  // set CS pin to low lewel
 		setPin(MCP2515_CS, false);
@@ -116,7 +116,7 @@ void Protocol_MCP2515::writeRegister(unsigned char address, unsigned char data)
 	//just a stub
 }
 
-void Protocol_MCP2515::mcp2515_bit_modify(unsigned char address, unsigned char mask, unsigned char data) {
+void ProtocolHandlerMcp2515::mcp2515_bit_modify(unsigned char address, unsigned char mask, unsigned char data) {
 
 	// set CS pin to low lewel
 	setPin(MCP2515_CS, false);
@@ -131,7 +131,7 @@ void Protocol_MCP2515::mcp2515_bit_modify(unsigned char address, unsigned char m
 	setPin(MCP2515_CS, true);
 }
 
-unsigned char Protocol_MCP2515::mcp2515_read_status() {
+unsigned char ProtocolHandlerMcp2515::mcp2515_read_status() {
 
 	// set CS pin to low lewel
 	setPin(MCP2515_CS, false);
@@ -145,7 +145,7 @@ unsigned char Protocol_MCP2515::mcp2515_read_status() {
 	return status;
 }
 
-unsigned char Protocol_MCP2515::mcp2515_rx_status(){
+unsigned char ProtocolHandlerMcp2515::mcp2515_rx_status(){
 	
 	// function implementation command rx status in SPI interface. This command return whether message any buffers and wich format can message
 	
@@ -164,7 +164,7 @@ unsigned char Protocol_MCP2515::mcp2515_rx_status(){
 	
 }
 
-bool Protocol_MCP2515::receiveMessage(canmsg_t * p_canmsg){
+bool ProtocolHandlerMcp2515::receiveMessage(canmsg_t * p_canmsg){
 		
 	unsigned char status = mcp2515_rx_status();
 	unsigned char Mask_address_rx_buffer;
@@ -223,7 +223,7 @@ bool Protocol_MCP2515::receiveMessage(canmsg_t * p_canmsg){
 	
 	
 
-unsigned char Protocol_MCP2515::sendMessage(canmsg_t * p_canmsg) {
+unsigned char ProtocolHandlerMcp2515::sendMessage(canmsg_t * p_canmsg) {
 
  unsigned char status = mcp2515_read_status();
  unsigned char address_load_buffer;
@@ -348,7 +348,7 @@ unsigned char Protocol_MCP2515::sendMessage(canmsg_t * p_canmsg) {
    
 }
 
-bool Protocol_MCP2515::writeMessage(canmsg_t * p_canmsg)
+bool ProtocolHandlerMcp2515::writeMessage(canmsg_t * p_canmsg)
 {
 	//just a stub
 	return true;

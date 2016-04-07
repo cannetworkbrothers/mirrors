@@ -7,11 +7,11 @@
 
 #include "can_interface.h"
 
-void CAN_USB_INTERFACE::init(){
+void CanInterface::init(){
 	
 }
 
-bool CAN_USB_INTERFACE::sendMessage(canmsg_t * p_canmsg){
+bool CanInterface::sendMessage(canmsg_t * p_canmsg){
 	can_protocol_.sendMessage(p_canmsg);
 	
 	return 0;

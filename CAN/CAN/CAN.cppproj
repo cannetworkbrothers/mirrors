@@ -216,7 +216,7 @@
     <Compile Include="src\can_interface\can_interface.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\controller\can_controller.h">
+    <Compile Include="src\controller\controller.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\controller_atmega8\controller_atmega8.cpp">

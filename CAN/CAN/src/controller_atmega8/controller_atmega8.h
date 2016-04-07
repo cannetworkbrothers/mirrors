@@ -6,11 +6,11 @@
  */ 
 
 
-#include "../controller/can_controller.h"
+#include "../controller/controller.h"
 #include "avr/interrupt.h"
 
 
-class ControllerAtmega8 : public CanController
+class ControllerAtmega8 : public Controller
 {	
 	public:
 	

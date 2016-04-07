@@ -12,20 +12,20 @@
 #include "../controller_atmega8/controller_atmega8.h"
 
 
-class CAN_USB_INTERFACE
+class CanInterface
 
 {
 	private:
 	ControllerAtmega8 mcu_;
-	Protocol_MCP2515 can_protocol_;
+	ProtocolHandlerMcp2515 can_protocol_;
 	
 	public:
-	CAN_USB_INTERFACE() 
+	CanInterface() 
 	{
 		can_protocol_.connectSpiTransmitCallback(ControllerAtmega8::static_SPI_Master_Transmit, &mcu_);
 		
 	};
-	~CAN_USB_INTERFACE() {};
+	~CanInterface() {};
 		
 	void init();
 	unsigned char receiveMessage(canmsg_t * p_canmsg);

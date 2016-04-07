@@ -25,12 +25,12 @@
 #define MCP2515_SS_0 PORTB &= ~(1 << PINB2 )
 #define MCP2515_SS_1 PORTB |= (1 << PINB2)
 
-class Protocol_MCP2515: public ProtocolHandler
+class ProtocolHandlerMcp2515: public ProtocolHandler
 {	
 public:
 	
-	Protocol_MCP2515(){};
-	~Protocol_MCP2515() {};
+	ProtocolHandlerMcp2515(){};
+	~ProtocolHandlerMcp2515() {};
 	
 	unsigned char init(const unsigned char canSpeed);
 	bool getPin(PIN pin);
