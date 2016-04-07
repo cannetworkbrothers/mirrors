@@ -11,8 +11,8 @@
 
 // macros
 
-#define getMode (readRegister(CANSTAT) & 0xE0)    // 0xe0 this mask 1110 0000 for compare read data with CAN_MODE_BIT
-#define setMode(mode) writeRegister(CANSTAT, (readRegister(CANSTAT)& (mode+0x0F)))  //  mode - have hight rate byte
+#define GET_MODE (readRegister(CANSTAT) & 0xE0)    // 0xe0 this mask 1110 0000 for compare read data with CAN_MODE_BIT
+#define SET_MODE(mode) writeRegister(CANSTAT, (readRegister(CANSTAT)& (mode+0x0F)))  //  mode - have hight rate byte
 																					// 0x0f -this mask low 4-bit/
 																					// op. & not change low bin when recordig
 
@@ -32,7 +32,7 @@ public:
 	Protocol_MCP2515(){};
 	~Protocol_MCP2515() {};
 	
-	void init();
+	unsigned char init(const unsigned char canSpeed);
 	bool getPin(PIN pin);
 	void setPin(PIN pin, bool level);
 	unsigned char mcp2515_read_status();

@@ -10,6 +10,7 @@
 void CAN_USB_INTERFACE::init(){
 	
 }
+
 bool CAN_USB_INTERFACE::sendMessage(canmsg_t * p_canmsg){
 	can_protocol_.sendMessage(p_canmsg);
 	

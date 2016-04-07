@@ -67,7 +67,7 @@
 // register definitions
 
 #define     CANSTAT     0b00001110	  // CAN status register
-#define     CANCTRL     0b00001111  // Â PIC18 - CANCON
+#define     CANCTRL     0b00001111 
  
 #define     RXF0SIDH    0b00000000
 #define     RXF0SIDL    0b00000001
@@ -208,19 +208,50 @@
 #define TxREQ1			 			0x02
 #define TxREQ2 					0x04
 
-// CAN_CONFIG_REG bit definitions
-#define CAN_NORMAL_BITS       0x00  // Set to this mode to send and receive packets
-#define CAN_CONFIG_BITS       0x80  // Set to this mode to initialize MCP2515
-#define CAN_LOOPBACK_BITS     0x40
-#define CAN_SLEEP_BITS        0x20
-#define CAN_LISTEN_BITS       0x60
-#define CAN_1SHOT_BIT         0x08
-#define CAN_ABORT_ALL_BIT     0x10
-#define CAN_CLKEN_BIT         0x04  // Clock out enable - not used on ECE 341 board
-#define CAN_CLKPRE1_BITS      0x00  // Clock out = Fosc/1 - not used on ECE 341 board
-#define CAN_CLKPRE2_BITS      0x01  // Clock out = Fosc/2 - not used on ECE 341 board
-#define CAN_CLKPRE4_BITS      0x02  // Clock out = Fosc/4 - not used on ECE 341 board
-#define CAN_CLKPRE8_BITS      0x03  // Clock out = Fosc/8 - not used on ECE 341 board
+/*
+ *   CANCTRL Register Values
+ */
+
+#define MODE_NORMAL			0x00  // Set to this mode to send and receive packets
+#define MODE_SLEEP			0x20
+#define MODE_LOOPBACK		0x40
+#define MODE_LISTEN_ONLY	0x60
+#define MODE_CONFIG			0x80  // Set to this mode to initialize MCP2515
+#define MODE_POWERUP		0xE0
+#define MODE_ONESHOT		0x08
+#define ABORT_TX			0x10
+#define CLKOUT_ENABLE		0x04  // Clock out enable - not used on ECE 341 board
+#define CLKOUT_DISABLE		0x00  
+#define CLKOUT_PS1			0x00 // Clock out = Fosc/1 - not used on ECE 341 board
+#define CLKOUT_PS2			0x01 // Clock out = Fosc/2 - not used on ECE 341 board
+#define CLKOUT_PS3			0x02 // Clock out = Fosc/4 - not used on ECE 341 board
+#define CLKOUT_PS4			0x03 // Clock out = Fosc/8 - not used on ECE 341 board
+
+/*
+ *   CNF1 Register Values
+ */
+
+#define SJW1            0x00
+#define SJW2            0x40
+#define SJW3            0x80
+#define SJW4            0xC0
+
+/*
+ *   CNF2 Register Values
+ */
+
+#define BTLMODE         0x80
+#define SAMPLE_1X       0x00
+#define SAMPLE_3X       0x40
+
+/*
+ *   CNF3 Register Values
+ */
+
+#define SOF_ENABLE      0x80
+#define SOF_DISABLE     0x00
+#define WAKFIL_ENABLE   0x40
+#define WAKFIL_DISABLE  0x00
 
 // CAN Status READ results
 #define CAN_RX0IF_STATUS_BIT  0x01  // Receiver buffer 0 full status bit
@@ -232,13 +263,16 @@
 #define CAN_TX2REQ_STATUS_BIT 0x40  // Receiver buffer 2 request to send
 #define CAN_TX2IF_STATUS_BIT  0x80  // Transmit buffer 2 empty status bit
 
-// CAN Read status bit definitions
+/*
+ *   CANINTF Register Bits
+ */
+
 #define	CANINTF_RX0IF			0x01	// Rx buffer 0 full interrupt flag
-#define	CANINTF_RX1IF			0x02  // Rx buffer 1 full interrupt flag
+#define	CANINTF_RX1IF			0x02	// Rx buffer 1 full interrupt flag
 #define	TXB0CTRL_TXREQ			0x04	// Tx buffer 0 transmit request flag
 #define	CANINTF_TX0IF			0x08	// Tx buffer 0 empty interrupt flag
 #define	TXB1CTRL_TXREQ			0x10	// Tx buffer 1 transmit request flag
-#define	CANINTF_TX1IF			0x20  // Tx buffer 1 empty interrupt flag
+#define	CANINTF_TX1IF			0x20	// Tx buffer 1 empty interrupt flag
 #define	TXB2CTRL_TXREQ			0x40	// Tx buffer 2 transmit request flag
 #define	CANINTF_TX2IF			0x80	// Tx buffer 2 empty interrupt flag
 

@@ -39,7 +39,7 @@ public:
 		controller_p = p;
 	};
 	
-	virtual void init() = 0;
+	virtual unsigned char init(const unsigned char canSpeed) = 0;
 	virtual bool getPin(PIN pin) = 0;
 	virtual void setPin(PIN pin, bool level) = 0;
 	virtual unsigned char readRegister(	unsigned char address) = 0;

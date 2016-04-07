@@ -10,7 +10,7 @@
 #include "math.h"
 
 
-void Protocol_MCP2515::init()
+unsigned char Protocol_MCP2515::init(const unsigned char canSpeed)
 {
 	
 	//Set CS pin to low level
@@ -18,8 +18,8 @@ void Protocol_MCP2515::init()
 	
 	// initialization only configure mode
 	
-	if (getMode != CAN_CONFIG_BITS) // this configure Mode?
-			setMode(CAN_CONFIG_BITS);
+	if (GET_MODE != MODE_CONFIG) // this configure Mode?
+			SET_MODE(MODE_CONFIG);
 		
 			
 	// set all interrupt Flags 
