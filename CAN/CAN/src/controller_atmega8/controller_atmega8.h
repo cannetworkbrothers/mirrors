@@ -32,5 +32,5 @@ class ControllerAtmega8 : public Controller
 		};
 	~ControllerAtmega8() {};
 	
-	unsigned char SPI_MasterTransmit(char cData);	
+	char SpiMasterTransmit(char cData);	
 };

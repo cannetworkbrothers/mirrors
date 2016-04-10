@@ -8,7 +8,7 @@
 typedef unsigned char PIN;
 
 //Function pointer calls controller_spi_transmit that takes a char and returns a char
-typedef unsigned char (*callback_spi_transmit_ptr)(void*, unsigned char);
+typedef unsigned char (*callback_spi_transmit_ptr)(void*, char);
 
 typedef struct
 {
@@ -33,7 +33,7 @@ public:
 	ProtocolHandler() {};
 	~ProtocolHandler() {};
     
-	void connectSpiTransmitCallback(callback_spi_transmit_ptr cb, void *p)
+	void ConnectSpiTransmitCallback(callback_spi_transmit_ptr cb, void *p)
 	{
 		controller_spi_transmit_ = cb;
 		controller_p = p;

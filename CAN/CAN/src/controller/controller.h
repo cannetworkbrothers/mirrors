@@ -13,13 +13,14 @@ public:
 	Controller() {};
 	~Controller() {};
 	
-	static unsigned char static_SPI_Master_Transmit(void *p, unsigned char cData)
+	//this function will be used by ProtocolHandler to connect SpiMasterTransmit callback function
+	static unsigned char StaticSpiMasterTransmit(void *p, char cData)
 	{
 		// Get back into the class by treating p as the "this" pointer.
-		((Controller *)p)->SPI_MasterTransmit(cData);
+		((Controller *)p)->SpiMasterTransmit(cData);
 		return 0;
 	};		
 	
-	virtual unsigned char SPI_MasterTransmit(char cData) = 0;
+	virtual char SpiMasterTransmit(char cData) = 0;
 	
 };

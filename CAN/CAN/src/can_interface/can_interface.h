@@ -5,8 +5,8 @@
  *  Author: Admin
  */ 
 
-#ifndef CAN_USB_INTERFACE_H_
-#define CAN_USB_INTERFACE_H_
+#ifndef CAN_INTERFACE_H_
+#define CAN_INTERFACE_H_
 
 #include "../protocol_mcp2515/can_protocol_mcp2515.h"
 #include "../controller_atmega8/controller_atmega8.h"
@@ -22,7 +22,7 @@ class CanInterface
 	public:
 	CanInterface() 
 	{
-		can_protocol_.connectSpiTransmitCallback(ControllerAtmega8::static_SPI_Master_Transmit, &mcu_);
+		can_protocol_.ConnectSpiTransmitCallback(ControllerAtmega8::StaticSpiMasterTransmit, &mcu_);
 		
 	};
 	~CanInterface() {};
@@ -34,4 +34,4 @@ class CanInterface
 };
 
 
-#endif /* CAN_USB_INTERFACE_H_ */
+#endif /* CAN_INTERFACE_H_ */

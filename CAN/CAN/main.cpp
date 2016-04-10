@@ -7,7 +7,7 @@
 
 #include "main.hpp"
 #include "src/can_interface/can_interface.h"
-#include <avr/delay.h>
+#include <util/delay.h>
 #include <stdlib.h>
 
 int main(void)
