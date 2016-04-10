@@ -12,7 +12,7 @@
 
 unsigned char ProtocolHandlerMcp2515::init(const unsigned char canSpeed)
 {
-	unsigned char result;
+	unsigned char result = 0;
 	//Set CS pin to low level
 	setPin(MCP2515_CS, false);
 	

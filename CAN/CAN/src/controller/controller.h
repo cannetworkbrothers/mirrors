@@ -17,8 +17,8 @@ public:
 	static unsigned char StaticSpiMasterTransmit(void *p, char cData)
 	{
 		// Get back into the class by treating p as the "this" pointer.
-		((Controller *)p)->SpiMasterTransmit(cData);
-		return 0;
+		return ((Controller *)p)->SpiMasterTransmit(cData);
+		
 	};		
 	
 	virtual char SpiMasterTransmit(char cData) = 0;
