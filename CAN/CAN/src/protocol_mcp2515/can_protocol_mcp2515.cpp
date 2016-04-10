@@ -8,11 +8,33 @@
 
 #include "can_protocol_mcp2515.h"
 #include "math.h"
+#ifndef MAIN_H_
+	#include "../../main.hpp"
+#endif
+#include <util/delay.h>
 
+// macro for micro controller callback, will be used in appropriate MCP2515 functions 
+#define SPI_TRANSMIT(adr) ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, adr);
+
+
+
+void ProtocolHandlerMcp2515::Reset(void)
+{
+	//to start SPI transfer need to push CS low level (chip select or slave select)
+	setPin(MCP2515_CS, false);
+	//send 8bit via SPI
+	SPI_TRANSMIT(RESET);
+	//to end SPI transfer need to push CS to high level (chip select or slave select)
+	setPin(MCP2515_CS, false);
+	_delay_ms(10);
+	
+}
 
 unsigned char ProtocolHandlerMcp2515::init(const unsigned char canSpeed)
 {
 	unsigned char result = 0;
+	
+	Reset();
 	//Set CS pin to low level
 	setPin(MCP2515_CS, false);
 	
@@ -85,16 +107,16 @@ void ProtocolHandlerMcp2515::setPin(PIN pin, bool level)
 	
 }
 
-unsigned char ProtocolHandlerMcp2515::readRegister(unsigned char address){
+unsigned char ProtocolHandlerMcp2515::ReadRegister(unsigned char address){
 	unsigned char data;
 	
 	//Set CS pin to low level
 	setPin(MCP2515_CS, false);
 	
-	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, READ);
-	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, address);
+	SPI_TRANSMIT(READ);
+	SPI_TRANSMIT(address);
 	
-	data = ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xFF);
+	data = SPI_TRANSMIT(0xFF);
 	
 	setPin(MCP2515_CS, true);
 	
@@ -317,14 +339,14 @@ unsigned char ProtocolHandlerMcp2515::sendMessage(canmsg_t * p_canmsg) {
    // release SS
    setPin(MCP2515_CS, true);
    // check if interrupt
-   unsigned char INTERRUPT_FLAGS = readRegister(CANINTF);
+   unsigned char INTERRUPT_FLAGS = ReadRegister(CANINTF);
    
    // check empty tx buffers
    
    while((INTERRUPT_FLAGS && CAN_TX0IF_BIT == 0) | (INTERRUPT_FLAGS && CAN_TX1IF_BIT == 0 )| (INTERRUPT_FLAGS && CAN_TX2IF_BIT == 0)) {
 	   
 	  //  check error massage tx
-	  INTERRUPT_FLAGS = readRegister(CANINTF);
+	  INTERRUPT_FLAGS = ReadRegister(CANINTF);
 	   if(INTERRUPT_FLAGS && CAN_MERRF_BIT ==1)  {
 		   mcp2515_bit_modify(CANINTF,CAN_MERRF_BIT,0 );
 		   return 0;
@@ -338,7 +360,7 @@ unsigned char ProtocolHandlerMcp2515::sendMessage(canmsg_t * p_canmsg) {
 		   return 0;
 	   }
 	  // set flag interrupt when buffer is empty
-	  INTERRUPT_FLAGS = readRegister(CANINTF);
+	  INTERRUPT_FLAGS = ReadRegister(CANINTF);
 	  if(INTERRUPT_FLAGS && CAN_TX0IF_BIT == 1) mcp2515_bit_modify(CANINTF, CAN_TX0IF_BIT, 0);
 	  if(INTERRUPT_FLAGS && CAN_TX1IF_BIT == 1) mcp2515_bit_modify(CANINTF, CAN_TX1IF_BIT, 0);
 	  if(INTERRUPT_FLAGS && CAN_TX2IF_BIT == 1) mcp2515_bit_modify(CANINTF, CAN_TX2IF_BIT, 0);

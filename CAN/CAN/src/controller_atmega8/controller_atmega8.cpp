@@ -9,7 +9,7 @@
 #include "controller_atmega8.h"
 
 
-char ControllerAtmega8::SpiMasterTransmit(char cData){
+unsigned char ControllerAtmega8::SpiMasterTransmit(unsigned char cData){
 	/* Start transmission*/
 	SPDR = cData;
 	

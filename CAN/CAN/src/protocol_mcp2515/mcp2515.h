@@ -19,6 +19,13 @@
 
 #define extended_identifer_massage_length 29
 
+/*
+ * MCP2515 statuses definitions 
+ */
+#define MCP2515_OK		(0)
+#define MCP2515_FAIL	(1)
+#define MCP_ALLTXBUSY	(2)
+
 // standard timing definitions
 #define MCP2515_TIMINGS_10K  0xfb, 0xad, 0x06	// PropSeg=6Tq, PS1=6Tq, PS2=7Tq, SamplePoint=65%, SJW=4
 #define MCP2515_TIMINGS_20K  0xdd, 0xad, 0x06   // PropSeg=6Tq, PS1=6Tq, PS2=7Tq, SamplePoint=65%, SJW=4
@@ -31,10 +38,12 @@
 #define MCP2515_TIMINGS_1M   0xc0, 0x9a, 0x03   // PropSeg=4Tq, PS1=3Tq, PS2=4Tq, SamplePoint=66.67%, SJW=4
 
 
-// command definitions - TODO: move to separate header file
-#define RESET           0b11000000 // Сброс MCP2515
-#define READ            0b00000011 // Читать регистр MCP2515
-#define WRITE           0b00000010 // Записать в регистр MCP2515
+/*
+ *   Define SPI Instruction Set
+ */
+#define RESET           0b11000000 // Reset MCP2515
+#define READ            0b00000011 // 
+#define WRITE           0b00000010 // 
 #define WRITEBIT        0b00000101
 #define MCP2515_CMD_LOAD_TX 0x40
 #define READBUF0_RX_SH  0b10010000

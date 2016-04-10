@@ -8,7 +8,7 @@
 typedef unsigned char PIN;
 
 //Function pointer calls controller_spi_transmit that takes a char and returns a char
-typedef unsigned char (*callback_spi_transmit_ptr)(void*, char);
+typedef unsigned char (*callback_spi_transmit_ptr)(void*, unsigned char);
 
 typedef struct
 {
@@ -42,7 +42,7 @@ public:
 	virtual unsigned char init(const unsigned char canSpeed) = 0;
 	virtual bool getPin(PIN pin) = 0;
 	virtual void setPin(PIN pin, bool level) = 0;
-	virtual unsigned char readRegister(	unsigned char address) = 0;
+	virtual unsigned char ReadRegister(	unsigned char address) = 0;
 	virtual void writeRegister(unsigned char address, unsigned char data) = 0;
 	
 	//returns true on success reception, false otherwise
