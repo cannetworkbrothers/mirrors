@@ -11,7 +11,9 @@
 
 // macros
 
-#define GET_MODE (ReadRegister(CANSTAT) & 0xE0)    // 0xe0 this mask 1110 0000 for compare read data with CAN_MODE_BIT
+// 0xe0 this mask 1110 0000 for compare read data with CANSTAT, register 10-2, page 61
+#define GET_MODE (ReadRegister(CANSTAT) & 0xE0)
+
 #define SET_MODE(mode) writeRegister(CANSTAT, (ReadRegister(CANSTAT)& (mode+0x0F)))  //  mode - have hight rate byte
 																					// 0x0f -this mask low 4-bit/
 																					// op. & not change low bin when recordig

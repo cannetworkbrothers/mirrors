@@ -56,10 +56,10 @@
 #define LOADBUF1_TX_D0  0b01000011
 #define LOADBUF2_TX_SH  0b01000100
 #define LOADBUF2_TX_D0  0b01000101
-#define RTS_TXB0        0b00000001 // Отправить сообщение из буфера 1
-#define RTS_TXB1        0b00000010 // Отправить сообщение из буфера 2
-#define RTS_TXB2        0b00000100 // Отправить сообщение из буфера 3
-#define RTS_TXB_ALL     0b00000111 // Отправить сообщения из всех буферов
+#define RTS_TXB0        0b10000001 // instructs controller to begin message transmission sequence for TX0
+#define RTS_TXB1        0b10000010 // instructs controller to begin message transmission sequence for TX1
+#define RTS_TXB2        0b10000100 // instructs controller to begin message transmission sequence for TX2
+#define RTS_TXB_ALL     0b10000111 // instructs controller to begin message transmission sequence for all TX
 #define MCP2515_CMD_READ_STATUS 0xA0
 #define MCP2515_CMD_BIT_MODIFY 0x05
 #define MCP2515_CMD_RX_STATUS 0xb0
