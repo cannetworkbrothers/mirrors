@@ -8,7 +8,7 @@
 #include "can_interface.h"
 
 void CanInterface::init(){
-	
+	can_protocol_.Init(CAN_5kBPS);
 }
 
 bool CanInterface::sendMessage(canmsg_t * p_canmsg){

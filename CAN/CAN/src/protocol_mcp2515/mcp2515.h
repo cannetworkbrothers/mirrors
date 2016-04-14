@@ -22,20 +22,21 @@
 /*
  * MCP2515 statuses definitions 
  */
-#define MCP2515_OK		(0)
-#define MCP2515_FAIL	(1)
+#define MCP_OK			(0)
+#define MCP_FAIL		(1)
 #define MCP_ALLTXBUSY	(2)
 
 // standard timing definitions
-#define MCP2515_TIMINGS_10K  0xfb, 0xad, 0x06	// PropSeg=6Tq, PS1=6Tq, PS2=7Tq, SamplePoint=65%, SJW=4
-#define MCP2515_TIMINGS_20K  0xdd, 0xad, 0x06   // PropSeg=6Tq, PS1=6Tq, PS2=7Tq, SamplePoint=65%, SJW=4
-#define MCP2515_TIMINGS_50K  0xcb, 0xad, 0x06   // PropSeg=6Tq, PS1=6Tq, PS2=7Tq, SamplePoint=65%, SJW=4
-#define MCP2515_TIMINGS_100K 0xc5, 0xad, 0x06   // PropSeg=6Tq, PS1=6Tq, PS2=7Tq, SamplePoint=65%, SJW=4
-#define MCP2515_TIMINGS_125K 0xc5, 0xa4, 0x04   // PropSeg=5Tq, PS1=5Tq, PS2=5Tq, SamplePoint=68.75%, SJW=4
-#define MCP2515_TIMINGS_250K 0xc2, 0xa4, 0x04	// PropSeg=5Tq, PS1=5Tq, PS2=5Tq, SamplePoint=68.75%, SJW=4
-#define MCP2515_TIMINGS_500K 0xc1, 0x9a, 0x03   // PropSeg=3Tq, PS1=4Tq, PS2=4Tq, SamplePoint=66.67%, SJW=4
-#define MCP2515_TIMINGS_800K 0xc0, 0xa3, 0x04   // PropSeg=4Tq, PS1=5Tq, PS2=5Tq, SamplePoint=66.67%, SJW=4
-#define MCP2515_TIMINGS_1M   0xc0, 0x9a, 0x03   // PropSeg=4Tq, PS1=3Tq, PS2=4Tq, SamplePoint=66.67%, SJW=4
+#define MCP_8MHz_5kBPS	0x1f, 0xbf, 0x07 // enum 0 - CAN_5kBPS
+//#define MCP2515_TIMINGS_10K  0xfb, 0xad, 0x06	// PropSeg=6Tq, PS1=6Tq, PS2=7Tq, SamplePoint=65%, SJW=4
+//#define MCP2515_TIMINGS_20K  0xdd, 0xad, 0x06   // PropSeg=6Tq, PS1=6Tq, PS2=7Tq, SamplePoint=65%, SJW=4
+//#define MCP2515_TIMINGS_50K  0xcb, 0xad, 0x06   // PropSeg=6Tq, PS1=6Tq, PS2=7Tq, SamplePoint=65%, SJW=4
+//#define MCP2515_TIMINGS_100K 0xc5, 0xad, 0x06   // PropSeg=6Tq, PS1=6Tq, PS2=7Tq, SamplePoint=65%, SJW=4
+//#define MCP2515_TIMINGS_125K 0xc5, 0xa4, 0x04   // PropSeg=5Tq, PS1=5Tq, PS2=5Tq, SamplePoint=68.75%, SJW=4
+//#define MCP2515_TIMINGS_250K 0xc2, 0xa4, 0x04	// PropSeg=5Tq, PS1=5Tq, PS2=5Tq, SamplePoint=68.75%, SJW=4
+//#define MCP2515_TIMINGS_500K 0xc1, 0x9a, 0x03   // PropSeg=3Tq, PS1=4Tq, PS2=4Tq, SamplePoint=66.67%, SJW=4
+//#define MCP2515_TIMINGS_800K 0xc0, 0xa3, 0x04   // PropSeg=4Tq, PS1=5Tq, PS2=5Tq, SamplePoint=66.67%, SJW=4
+//#define MCP2515_TIMINGS_1M   0xc0, 0x9a, 0x03   // PropSeg=4Tq, PS1=3Tq, PS2=4Tq, SamplePoint=66.67%, SJW=4
 
 
 /*
@@ -116,9 +117,9 @@
 #define     RXM1SIDL    0b00100101
 #define     RXM1EID8    0b00100110
 #define     RXM1EID0    0b00100111
-#define		MCP2515_REG_CNF1 0x2A
-#define		MCP2515_REG_CNF2 0x29
-#define		MCP2515_REG_CNF3 0x28
+#define		MCP_REG_CNF1 0x2A
+#define		MCP_REG_CNF2 0x29
+#define		MCP_REG_CNF3 0x28
 #define     CANINTE     0b00101011 // PIE3, Устанавливаем желаемые флаги прерываний
 #define     CANINTF     0b00101100 // INTERRUPT FLAG
 #define     EFLG        0b00101101
@@ -227,6 +228,7 @@
 #define MODE_LISTEN_ONLY	0x60
 #define MODE_CONFIG			0x80  // Set to this mode to initialize MCP2515
 #define MODE_POWERUP		0xE0
+#define MODE_MASK			0xE0
 #define MODE_ONESHOT		0x08
 #define ABORT_TX			0x10
 #define CLKOUT_ENABLE		0x04  // Clock out enable - not used on ECE 341 board

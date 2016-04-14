@@ -16,7 +16,88 @@
 // macro for micro controller callback, will be used in appropriate MCP2515 functions 
 #define SPI_TRANSMIT(adr) ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, adr);
 
+/* 
+ * Implementation of MCP2515 private members
+ */
 
+void ProtocolHandlerMcp2515::BitModify(unsigned char address, unsigned char mask, unsigned char data) {
+
+	// set CS pin to low level
+	setPin(MCP2515_CS, false);
+	
+	SPI_TRANSMIT(MCP2515_CMD_BIT_MODIFY);
+	SPI_TRANSMIT(address);
+	SPI_TRANSMIT(mask);
+	SPI_TRANSMIT(data);
+	
+	// release CS
+	setPin(MCP2515_CS, true);
+}
+
+unsigned char ProtocolHandlerMcp2515::Init(const unsigned char can_speed)
+{
+	CREATE_LOGGER(logger);
+	unsigned char result = 0;
+	
+	Reset();
+	//Set CS pin to low level
+	setPin(MCP2515_CS, false);
+	
+	// initialization only configure mode
+	if (GET_MODE != MODE_CONFIG) SetMode(MODE_CONFIG);
+	
+	//check if MODE_CONFIG was succsessfuly setted
+	if (result > 0)
+	{
+		LOG(logger, (char*) "Failed to setup CONFIG_MODE")
+		return result;
+	}
+	LOG(logger, (char*) "CONFIG_MODE has initialized successfully")
+	
+	// set all interrupt Flags
+	WriteRegister(CANINTE, 0xFF);
+	
+	// configure filter
+	WriteRegister(RXB0CTRL, 0x00); // use filter for standard and extended frames
+	WriteRegister(RXB1CTRL, 0x00); // use filter for standard and extended frames
+
+	// initialize filter mask
+	WriteRegister(RXM0SIDH, 0x00);
+	WriteRegister(RXM0SIDL, 0x00);
+	WriteRegister(RXM0EID8, 0x00);
+	WriteRegister(RXM0EID0, 0x00);
+	WriteRegister(RXM1SIDH, 0x00);
+	WriteRegister(RXM1SIDL, 0x00);
+	WriteRegister(RXM1EID8, 0x00);
+	WriteRegister(RXM1EID0, 0x00);
+	
+	// set pin assigment RX0BF and RX1BF
+	
+	// RXnBF pin contrjl and status reg all 1 pins setting interrupt 
+	// Теперь на них будет 0, когда данные будут в соответствующем буфере.
+	WriteRegister(BFPCTRL, 0x0F);
+	
+	SetCanSpeed(can_speed);
+	//USART::~USART();
+	return result;
+}
+
+unsigned char ProtocolHandlerMcp2515::ReadRegister(unsigned char address)
+{
+	unsigned char data;
+	
+	//Set CS pin to low level
+	setPin(MCP2515_CS, false);
+	
+	SPI_TRANSMIT(READ);
+	SPI_TRANSMIT(address);
+	
+	data = SPI_TRANSMIT(0xFF);
+	
+	setPin(MCP2515_CS, true);
+	
+	return data;
+}
 
 void ProtocolHandlerMcp2515::Reset(void)
 {
@@ -30,46 +111,21 @@ void ProtocolHandlerMcp2515::Reset(void)
 	
 }
 
-unsigned char ProtocolHandlerMcp2515::init(const unsigned char canSpeed)
+unsigned char ProtocolHandlerMcp2515::SetMode(const unsigned char desired_mode)
 {
-	unsigned char result = 0;
-	
-	Reset();
-	//Set CS pin to low level
-	setPin(MCP2515_CS, false);
-	
-	// initialization only configure mode
-	
-	if (GET_MODE != MODE_CONFIG) // this configure Mode?
-			SET_MODE(MODE_CONFIG);
-		
-			
-	// set all interrupt Flags 
-	
-	writeRegister(CANINTE, 0xFF);
-	
-	// configure filter
-	
-	writeRegister(RXB0CTRL, 0x00); // use filter for standard and extended frames
-	writeRegister(RXB1CTRL, 0x00); // use filter for standard and extended frames
-
-	// initialize filter mask
-	writeRegister(RXM0SIDH, 0x00);
-	writeRegister(RXM0SIDL, 0x00);
-	writeRegister(RXM0EID8, 0x00);
-	writeRegister(RXM0EID0, 0x00);
-	writeRegister(RXM1SIDH, 0x00);
-	writeRegister(RXM1SIDL, 0x00);
-	writeRegister(RXM1EID8, 0x00);
-	writeRegister(RXM1EID0, 0x00);
-	
-	// set pin assigment RX0BF and RX1BF
-	
-	writeRegister(BFPCTRL, 0x0F);    // RXnBF pin contrjl and status reg all 1 pins setting interrupt Теперь на них будет 0, когда данные будут в соответствующем буфере.
-	
-	mcp2515_set_bittiming(MCP2515_TIMINGS_125K);
-	
-	return result;
+	unsigned char result;
+	BitModify(CANCTRL, MODE_MASK, desired_mode);
+	result = ReadRegister(CANCTRL);
+	// apply 1110 0000 mask to received content
+	result &= MODE_MASK;
+	if (result == desired_mode)
+	{
+		return MCP_OK;
+	}
+	else
+	{
+		return MCP_FAIL;
+	}
 }
 
 /**
@@ -81,12 +137,24 @@ unsigned char ProtocolHandlerMcp2515::init(const unsigned char canSpeed)
  *
  * This function has only affect if mcp2515 is in configuration mode
  */
-void ProtocolHandlerMcp2515::mcp2515_set_bittiming(unsigned char cnf1, unsigned char cnf2, unsigned char cnf3) {
+void ProtocolHandlerMcp2515::SetBitRateRegisters(unsigned char cnf1, unsigned char cnf2, unsigned char cnf3) {
+    WriteRegister(MCP_REG_CNF1, cnf1);
+    WriteRegister(MCP_REG_CNF2, cnf2);
+    WriteRegister(MCP_REG_CNF3, cnf3);
+}
 
-
-    writeRegister(MCP2515_REG_CNF1, cnf1);
-    writeRegister(MCP2515_REG_CNF2, cnf2);
-    writeRegister(MCP2515_REG_CNF3, cnf3);
+unsigned char ProtocolHandlerMcp2515::SetCanSpeed(unsigned char can_speed)
+{
+	switch (can_speed)
+	{
+	case (0): // enum 0 - MCP_5kBPS in CanController
+		SetBitRateRegisters(MCP_8MHz_5kBPS);
+		break;
+		default:
+		return MCP_FAIL;
+	}
+	
+	return MCP_OK;
 }
 
 bool ProtocolHandlerMcp2515::getPin(PIN pin)
@@ -107,56 +175,22 @@ void ProtocolHandlerMcp2515::setPin(PIN pin, bool level)
 	
 }
 
-unsigned char ProtocolHandlerMcp2515::ReadRegister(unsigned char address){
-	unsigned char data;
-	
-	//Set CS pin to low level
-	setPin(MCP2515_CS, false);
-	
-	SPI_TRANSMIT(READ);
-	SPI_TRANSMIT(address);
-	
-	data = SPI_TRANSMIT(0xFF);
-	
-	setPin(MCP2515_CS, true);
-	
-	return data;
-}
-
-void ProtocolHandlerMcp2515::writeRegister(unsigned char address, unsigned char data)
+void ProtocolHandlerMcp2515::WriteRegister(unsigned char address, unsigned char data)
 {
-	  // set CS pin to low lewel
+	  // set CS pin to low level
 		setPin(MCP2515_CS, false);
 		
-		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, WRITE);
-		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p,address);
-		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, data);
-		
+		SPI_TRANSMIT(WRITE);
+		SPI_TRANSMIT(address);
+		SPI_TRANSMIT(data);
 		
 		// release SS
 		setPin(MCP2515_CS, true);
-	
-	//just a stub
-}
-
-void ProtocolHandlerMcp2515::mcp2515_bit_modify(unsigned char address, unsigned char mask, unsigned char data) {
-
-	// set CS pin to low lewel
-	setPin(MCP2515_CS, false);
-	
-	
-	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, MCP2515_CMD_BIT_MODIFY);
-	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, address);
-	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, mask);
-	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, data);
-	
-	// release SS
-	setPin(MCP2515_CS, true);
 }
 
 unsigned char ProtocolHandlerMcp2515::mcp2515_read_status() {
 
-	// set CS pin to low lewel
+	// set CS pin to low level
 	setPin(MCP2515_CS, false);
 	
 	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, MCP2515_CMD_READ_STATUS );
@@ -234,7 +268,7 @@ bool ProtocolHandlerMcp2515::receiveMessage(canmsg_t * p_canmsg){
 	 
 	 if (Mask_address_rx_buffer == 0) Mask_address_rx_buffer = 1;
 	 else Mask_address_rx_buffer = 2;
-	 mcp2515_bit_modify(MCP2515_REG_CANINTF, Mask_address_rx_buffer, 0);
+	 BitModify(MCP2515_REG_CANINTF, Mask_address_rx_buffer, 0);
 	 
 	 
  // release SS
@@ -348,7 +382,7 @@ unsigned char ProtocolHandlerMcp2515::sendMessage(canmsg_t * p_canmsg) {
 	  //  check error massage tx
 	  INTERRUPT_FLAGS = ReadRegister(CANINTF);
 	   if(INTERRUPT_FLAGS && CAN_MERRF_BIT ==1)  {
-		   mcp2515_bit_modify(CANINTF,CAN_MERRF_BIT,0 );
+		   BitModify(CANINTF,CAN_MERRF_BIT,0 );
 		   return 0;
 		   
 	   }
@@ -356,14 +390,14 @@ unsigned char ProtocolHandlerMcp2515::sendMessage(canmsg_t * p_canmsg) {
 	  }
 	  // again check error massage
 	   if(INTERRUPT_FLAGS && CAN_MERRF_BIT ==1)  {
-		   mcp2515_bit_modify(CANINTF,CAN_MERRF_BIT,0 );
+		   BitModify(CANINTF,CAN_MERRF_BIT,0 );
 		   return 0;
 	   }
 	  // set flag interrupt when buffer is empty
 	  INTERRUPT_FLAGS = ReadRegister(CANINTF);
-	  if(INTERRUPT_FLAGS && CAN_TX0IF_BIT == 1) mcp2515_bit_modify(CANINTF, CAN_TX0IF_BIT, 0);
-	  if(INTERRUPT_FLAGS && CAN_TX1IF_BIT == 1) mcp2515_bit_modify(CANINTF, CAN_TX1IF_BIT, 0);
-	  if(INTERRUPT_FLAGS && CAN_TX2IF_BIT == 1) mcp2515_bit_modify(CANINTF, CAN_TX2IF_BIT, 0);
+	  if(INTERRUPT_FLAGS && CAN_TX0IF_BIT == 1) BitModify(CANINTF, CAN_TX0IF_BIT, 0);
+	  if(INTERRUPT_FLAGS && CAN_TX1IF_BIT == 1) BitModify(CANINTF, CAN_TX1IF_BIT, 0);
+	  if(INTERRUPT_FLAGS && CAN_TX2IF_BIT == 1) BitModify(CANINTF, CAN_TX2IF_BIT, 0);
    
    return 1;
    

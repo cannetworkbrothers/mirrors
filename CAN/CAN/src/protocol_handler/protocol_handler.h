@@ -39,11 +39,9 @@ public:
 		controller_p = p;
 	};
 	
-	virtual unsigned char init(const unsigned char canSpeed) = 0;
+	//virtual unsigned char Init(const unsigned char canSpeed) = 0;
 	virtual bool getPin(PIN pin) = 0;
 	virtual void setPin(PIN pin, bool level) = 0;
-	virtual unsigned char ReadRegister(	unsigned char address) = 0;
-	virtual void writeRegister(unsigned char address, unsigned char data) = 0;
 	
 	//returns true on success reception, false otherwise
 	virtual bool receiveMessage(canmsg_t * p_canmsg) = 0;

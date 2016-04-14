@@ -11,6 +11,7 @@
 #include "../protocol_mcp2515/can_protocol_mcp2515.h"
 #include "../controller_atmega8/controller_atmega8.h"
 
+#define CAN_5kBPS (0)
 
 class CanInterface
 

@@ -17,6 +17,11 @@ USART::USART(const long baud /* = 9600 */) {
 	UCSRC = (1<<URSEL)|(1<<USBS)|(3<<UCSZ0);
 }
 
+ USART::~USART()
+{
+
+}
+
 unsigned char USART::ReceiveChar(void) {
 	/* Wait for data to be received */
 	while ( !(UCSRA & (1<<RXC)) );

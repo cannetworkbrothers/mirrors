@@ -14,7 +14,7 @@
 // 0xe0 this mask 1110 0000 for compare read data with CANSTAT, register 10-2, page 61
 #define GET_MODE (ReadRegister(CANSTAT) & 0xE0)
 
-#define SET_MODE(mode) writeRegister(CANSTAT, (ReadRegister(CANSTAT)& (mode+0x0F)))  //  mode - have hight rate byte
+#define SET_MODE(mode) WriteRegister(CANSTAT, (ReadRegister(CANSTAT)& (mode+0x0F)))  //  mode - have hight rate byte
 																					// 0x0f -this mask low 4-bit/
 																					// op. & not change low bin when recordig
 
@@ -30,21 +30,23 @@
 class ProtocolHandlerMcp2515: public ProtocolHandler
 {
 private:
-	void Reset(void);
-	unsigned char ReadRegister(const unsigned char address);
-	unsigned char init(const unsigned char canSpeed);
+	void			BitModify(unsigned char address, unsigned char mask, unsigned char data);
+	unsigned char	ReadRegister(const unsigned char address);
+	void			Reset(void);
+	void			SetBitRateRegisters(unsigned char cnf1, unsigned char cnf2, unsigned char cnf3);
+	unsigned char	SetCanSpeed(unsigned char can_speed);
+	unsigned char	SetMode(const unsigned char desired_mode);
+	void			WriteRegister(unsigned char address, unsigned char data);
 		
 public:
 	
 	ProtocolHandlerMcp2515(){};
 	~ProtocolHandlerMcp2515() {};
 	
+	unsigned char	Init(const unsigned char can_speed);
 	bool getPin(PIN pin);
 	void setPin(PIN pin, bool level);
 	unsigned char mcp2515_read_status();
-	void mcp2515_set_bittiming(unsigned char cnf1, unsigned char cnf2, unsigned char cnf3);
-	void writeRegister(unsigned char address, unsigned char data);
-	void mcp2515_bit_modify(unsigned char address, unsigned char mask, unsigned char data);
 	bool receiveMessage(canmsg_t * p_canmsg);
 	unsigned char sendMessage(canmsg_t * p_canmsg);
 	bool writeMessage(canmsg_t * p_canmsg);
