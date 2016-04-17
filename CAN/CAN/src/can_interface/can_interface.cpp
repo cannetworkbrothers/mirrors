@@ -6,9 +6,15 @@
  */ 
 
 #include "can_interface.h"
+#ifndef MAIN_H_
+#include "../../main.hpp"
+#endif
 
 void CanInterface::init(){
+	CREATE_LOGGER(logger)
+	LOG(logger, (char*) "CanInterface.Init() started...")
 	can_protocol_.Init(CAN_5kBPS);
+	LOG(logger, (char*) "CanInterface.Init() ended.")
 }
 
 bool CanInterface::sendMessage(canmsg_t * p_canmsg){

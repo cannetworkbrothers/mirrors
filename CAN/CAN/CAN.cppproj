@@ -210,6 +210,9 @@
     <Compile Include="main.hpp">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\can_interface\canconfig.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\can_interface\can_interface.cpp">
       <SubType>compile</SubType>
     </Compile>

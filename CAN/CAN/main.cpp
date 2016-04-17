@@ -15,7 +15,7 @@
 int main(void)
 {
 	DDRB = 0b00000010; // PB1 as output
-	PORTB = 0b00000010; // light the LED for fun :)
+	PORTB |= (1<<PB1); // light the LED for fun :)
 	
 	//wait 10 seconds for start logging
 	_delay_ms(10*1000);

@@ -9,7 +9,9 @@
 #ifndef CAN_PROTOCOL_MCP2515_H_
 #define CAN_PROTOCOL_MCP2515_H_
 
-// macros
+#ifndef MAIN_H_
+#include "../../main.hpp"
+#endif
 
 // 0xe0 this mask 1110 0000 for compare read data with CANSTAT, register 10-2, page 61
 #define GET_MODE (ReadRegister(CANSTAT) & 0xE0)
@@ -31,6 +33,7 @@ class ProtocolHandlerMcp2515: public ProtocolHandler
 {
 private:
 	void			BitModify(unsigned char address, unsigned char mask, unsigned char data);
+	void			InitCanBuffers(void);
 	unsigned char	ReadRegister(const unsigned char address);
 	void			Reset(void);
 	void			SetBitRateRegisters(unsigned char cnf1, unsigned char cnf2, unsigned char cnf3);
@@ -40,12 +43,17 @@ private:
 		
 public:
 	
-	ProtocolHandlerMcp2515(){};
+	ProtocolHandlerMcp2515()
+	{
+		//CREATE_LOGGER(logger)
+		//MCP2515_CS
+		//LOG(logger, (char*)"MCP2515 Constructor.")	
+	};
 	~ProtocolHandlerMcp2515() {};
 	
 	unsigned char	Init(const unsigned char can_speed);
-	bool getPin(PIN pin);
-	void setPin(PIN pin, bool level);
+	bool getPin(unsigned char pin);
+	void setPin(unsigned char port, unsigned char pin, bool level);
 	unsigned char mcp2515_read_status();
 	bool receiveMessage(canmsg_t * p_canmsg);
 	unsigned char sendMessage(canmsg_t * p_canmsg);

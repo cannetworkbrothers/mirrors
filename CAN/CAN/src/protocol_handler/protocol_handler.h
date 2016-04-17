@@ -5,7 +5,7 @@
  *  Author: Armin
  */ 
 
-typedef unsigned char PIN;
+//typedef unsigned char PIN; - todo remove this after review
 
 //Function pointer calls controller_spi_transmit that takes a char and returns a char
 typedef unsigned char (*callback_spi_transmit_ptr)(void*, unsigned char);
@@ -40,8 +40,8 @@ public:
 	};
 	
 	//virtual unsigned char Init(const unsigned char canSpeed) = 0;
-	virtual bool getPin(PIN pin) = 0;
-	virtual void setPin(PIN pin, bool level) = 0;
+	//virtual bool getPin(PIN pin) = 0;
+	//virtual void setPin(PIN pin, bool level) = 0;
 	
 	//returns true on success reception, false otherwise
 	virtual bool receiveMessage(canmsg_t * p_canmsg) = 0;

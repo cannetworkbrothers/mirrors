@@ -9,9 +9,50 @@
 #ifndef MCP2515_H_
 #define MCP2515_H_
 
+#ifndef CANCONFIG_H_
+	#include "../can_interface/canconfig.h"
+#endif
+
+// macros - TODO -all macro should be in one file
+#define PORT_CONCAT(a, b)	a ## b
+
+#define CONFIG_OUTPORT(name)	PORT_CONCAT(PORT, name)
+#define CONFIG_INPORT(name)		PORT_CONCAT(PIN, name)
+#define CONFIG_DDRPORT(name)	PORT_CONCAT(DDR, name)
+
+#define SPI_CS_PORT		CONFIG_OUTPORT(SPI_CS_PORT_NAME)
+#define SPI_CS_PIN		SPI_CS_PORT_BIT
+
+#define SPI_MOSI_PORT	CONFIG_OUTPORT(SPI_MOSI_PORT_NAME)
+#define SPI_MOSI_PIN	SPI_MOSI_PORT_BIT
+
+#define SPI_MISO_PORT	CONFIG_OUTPORT(SPI_MISO_PORT_NAME)
+#define SPI_MISO_PIN	SPI_MISO_PORT_BIT
+
+#define SPI_SCK_PORT	CONFIG_OUTPORT(SPI_SCK_PORT_NAME)
+#define SPI_SCK_PIN		SPI_SCK_PORT_BIT
 
 // pin mapping
-#define MCP2515_CS PORTC0
+//#define MCP2515_CS PB2
+/*
+ *   Begin mt
+ */
+#define TIMEOUTVALUE    50
+#define MCP_SIDH        0
+#define MCP_SIDL        1
+#define MCP_EID8        2
+#define MCP_EID0        3
+
+#define MCP_TXB_EXIDE_M     0x08                                        /* In TXBnSIDL                  */
+#define MCP_DLC_MASK        0x0F                                        /* 4 LSBits                     */
+#define MCP_RTR_MASK        0x40                                        /* (1<<6) Bit 6                 */
+
+#define MCP_RXB_RX_ANY      0x60
+#define MCP_RXB_RX_EXT      0x40
+#define MCP_RXB_RX_STD      0x20
+#define MCP_RXB_RX_STDEXT   0x00
+#define MCP_RXB_RX_MASK     0x60
+#define MCP_RXB_BUKT_MASK   (1<<2)
 
 // can massage frame definitions
 
@@ -123,15 +164,13 @@
 #define     CANINTE     0b00101011 // PIE3, Устанавливаем желаемые флаги прерываний
 #define     CANINTF     0b00101100 // INTERRUPT FLAG
 #define     EFLG        0b00101101
- 
-
- 
-#define     RXB0CTRL    0b01100000 // см. RXBnCON
-
-#define     RXB0SIDH    0b01100001 // Идентификатор стандартного сообщения приемного буфера 0, СТАРШИЙ байт
-#define     RXB0SIDL    0b01100010 // Идентификатор стандартного сообщения приемного буфера 0, МЛАДШИЙ байт
-#define     RXB0EID8    0b01100011 // Идентификатор расширенного сообщения приемного буфера 0, СТАРШИЙ байт
-#define     RXB0EID0    0b01100100 // Идентификатор расширенного сообщения приемного буфера 0, МЛАДШИЙ байт
+#define		TXB0CTRL    0x30
+#define		TXB1CTRL    0x40
+#define		TXB2CTRL    0x50
+#define		RXB0CTRL    0x60
+#define		RXB0SIDH    0x61
+#define		RXB1CTRL    0x70
+#define		RXB1SIDH    0x71
 
 #define     RXB0DLC     0b01100101
 #define     RXB0D0      0b01100110
@@ -143,8 +182,6 @@
 #define     RXB0D6      0b01101100
 #define     RXB0D7      0b01101101
  
-#define     RXB1CTRL    0b01110000
-#define     RXB1SIDH    0b01110001
 #define     RXB1SIDL    0b01110010
 #define     RXB1EID8    0b01110011
 #define     RXB1EID0    0b01110100
@@ -215,7 +252,7 @@
 
 // Request to send Packet command control bit definitions
 #define TxREQ0 					0x01
-#define TxREQ1			 			0x02
+#define TxREQ1			 		0x02
 #define TxREQ2 					0x04
 
 /*

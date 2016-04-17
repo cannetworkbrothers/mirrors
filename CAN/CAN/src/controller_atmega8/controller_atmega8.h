@@ -7,6 +7,7 @@
 
 
 #include "../controller/controller.h"
+#include "../logger/logger.hpp"
 #include "avr/interrupt.h"
 
 
@@ -16,19 +17,30 @@ class ControllerAtmega8 : public Controller
 	
 	ControllerAtmega8() {
 		
+		CREATE_LOGGER(logger)
+		LOG(logger, (char*)"atmega8.Constructor start...")
+		
 		// set SPI
 		
-		SPCR |= (1<<SPE);   // enable SPI
-		SPSR = (0<<SPI2X);  // pres caller
-		SPCR = (0<<SPR1)|(0<<SPR0);         // fspi=fosc/2
-		SPCR |= (1<<DORD);   // receive from low rate 
+		DDRB |= (1<<DDB2);  // port B2 - SS pin. For Master mode this must be OUT
+		DDRB |= (1<<DDB3);  // port B3 - MOSI pin. For Master mode this must be OUT
+		DDRB &= ~(1<<DDB4); // port B4 - MISO pin. For Master mode this must be IN
+		DDRB |= (1<<DDB5);  // port B5 - SCK pin. For Master mode this must be OUT
+		
+		PORTB |= (1<<DDB2)|(1<<DDB3)|(1<<DDB4)|(1<<DDB5);
+		
 		SPCR |=(1<<MSTR);  // mode MASTER
-		DDRB |= (1<<DDB2);  // port B2 this is a SS pin. For Master mode this must be OUT
-		SPCR |= (1<< CPOL)|(1<<CPHA); // synchronization begin Leading Edge, sample data beginning Trailing Edge Mode 3 (1:1)
-		SPCR |=(1<<SPIE); // enable interrupt SPI
-	    sei();   // global interrupt Enable
 		
-		
+		SPSR |= (1<<SPI2X);  // pres caller
+		SPCR |= (1<<SPR1);
+		SPCR |= (1<<SPR0); // fspi=fosc/128
+		SPCR |= (1<<DORD); // receive from low rate 
+		SPCR |= (1<<CPOL); // synchronization begin Leading Edge Mode 3
+		SPCR |= (1<<CPHA); // sample data beginning Trailing Edge Mode 3
+		//SPCR |= (1<<SPIE); // enable interrupt SPI
+		//SPCR |= (1<<SPE);   // enable SPI
+	    //sei();   // global interrupt Enable
+		LOG(logger, (char*)"atmega8.Constructor end")
 		};
 	~ControllerAtmega8() {};
 	
