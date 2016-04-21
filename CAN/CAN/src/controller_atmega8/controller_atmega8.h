@@ -27,16 +27,17 @@ class ControllerAtmega8 : public Controller
 		DDRB &= ~(1<<DDB4); // port B4 - MISO pin. For Master mode this must be IN
 		DDRB |= (1<<DDB5);  // port B5 - SCK pin. For Master mode this must be OUT
 		
-		PORTB |= (1<<DDB2)|(1<<DDB3)|(1<<DDB4)|(1<<DDB5);
+		//PORTB |= (1<<DDB2)|(1<<DDB3)|(1<<DDB4)|(1<<DDB5);
 		
-		SPCR |=(1<<MSTR);  // mode MASTER
+		SPCR = (1<<SPE) | (1<<MSTR);  // mode MASTER
+		SPSR = (1<<SPI2X);
 		
-		SPSR |= (1<<SPI2X);  // pres caller
-		SPCR |= (1<<SPR1);
-		SPCR |= (1<<SPR0); // fspi=fosc/128
-		SPCR |= (1<<DORD); // receive from low rate 
-		SPCR |= (1<<CPOL); // synchronization begin Leading Edge Mode 3
-		SPCR |= (1<<CPHA); // sample data beginning Trailing Edge Mode 3
+		//SPSR |= (1<<SPI2X);  // pres caller
+		//SPCR |= (1<<SPR1);
+		//SPCR |= (1<<SPR0); // fspi=fosc/128
+		//SPCR |= (1<<DORD); // receive from low rate 
+		//SPCR |= (1<<CPOL); // synchronization begin Leading Edge Mode 3
+		//SPCR |= (1<<CPHA); // sample data beginning Trailing Edge Mode 3
 		//SPCR |= (1<<SPIE); // enable interrupt SPI
 		//SPCR |= (1<<SPE);   // enable SPI
 	    //sei();   // global interrupt Enable

@@ -25,14 +25,23 @@
  */
 
 void ProtocolHandlerMcp2515::BitModify(unsigned char address, unsigned char mask, unsigned char data) {
-
+	
+	CREATE_LOGGER(logger)
 	// set CS pin to low level
 	setPin(SPI_CS_PORT, SPI_CS_PIN, false);
 	
+	LOG(logger, (char*) "SPI: sending command bit_modify")
 	SPI_TRANSMIT(MCP2515_CMD_BIT_MODIFY);
+	LOG(logger, (char*) "SPI: command sent")
+	LOG(logger, (char*) "SPI: sending address")
 	SPI_TRANSMIT(address);
+	LOG(logger, (char*) "SPI: address sent")
+	LOG(logger, (char*) "SPI: sending mask")
 	SPI_TRANSMIT(mask);
+	LOG(logger, (char*) "SPI: mask sent")
+	LOG(logger, (char*) "SPI: sending data")
 	SPI_TRANSMIT(data);
+	LOG(logger, (char*) "SPI: data sent")
 	
 	// release CS
 	setPin(SPI_CS_PORT, SPI_CS_PIN, true);
@@ -68,7 +77,7 @@ unsigned char ProtocolHandlerMcp2515::Init(const unsigned char can_speed)
 	if (GET_MODE != MODE_CONFIG) 
 		result = SetMode(MODE_CONFIG);
 	
-	//check if MODE_CONFIG was succsessfuly setted
+	//check if MODE_CONFIG was successfully set upped
 	if (result > 0)
 	{
 		LOG(logger, (char*) "Failed to setup CONFIG_MODE")
@@ -76,34 +85,35 @@ unsigned char ProtocolHandlerMcp2515::Init(const unsigned char can_speed)
 	}
 	LOG(logger, (char*) "CONFIG_MODE has initialized successfully")
 	
-	// set all interrupt Flags
-	WriteRegister(CANINTE, 0xFF);
+	//// set all interrupt Flags
+	//WriteRegister(CANINTE, 0xFF);
+	//
+	//// configure filter
+	//WriteRegister(RXB0CTRL, 0x00); // use filter for standard and extended frames
+	//WriteRegister(RXB1CTRL, 0x00); // use filter for standard and extended frames
+//
+	//// initialize filter mask
+	//WriteRegister(RXM0SIDH, 0x00);
+	//WriteRegister(RXM0SIDL, 0x00);
+	//WriteRegister(RXM0EID8, 0x00);
+	//WriteRegister(RXM0EID0, 0x00);
+	//WriteRegister(RXM1SIDH, 0x00);
+	//WriteRegister(RXM1SIDL, 0x00);
+	//WriteRegister(RXM1EID8, 0x00);
+	//WriteRegister(RXM1EID0, 0x00);
+	//
+	//// set pin assigment RX0BF and RX1BF
+	//
+	//// RXnBF pin contrjl and status reg all 1 pins setting interrupt 
+	//// Теперь на них будет 0, когда данные будут в соответствующем буфере.
+	//WriteRegister(BFPCTRL, 0x0F);
 	
-	// configure filter
-	WriteRegister(RXB0CTRL, 0x00); // use filter for standard and extended frames
-	WriteRegister(RXB1CTRL, 0x00); // use filter for standard and extended frames
-
-	// initialize filter mask
-	WriteRegister(RXM0SIDH, 0x00);
-	WriteRegister(RXM0SIDL, 0x00);
-	WriteRegister(RXM0EID8, 0x00);
-	WriteRegister(RXM0EID0, 0x00);
-	WriteRegister(RXM1SIDH, 0x00);
-	WriteRegister(RXM1SIDL, 0x00);
-	WriteRegister(RXM1EID8, 0x00);
-	WriteRegister(RXM1EID0, 0x00);
-	
-	// set pin assigment RX0BF and RX1BF
-	
-	// RXnBF pin contrjl and status reg all 1 pins setting interrupt 
-	// Теперь на них будет 0, когда данные будут в соответствующем буфере.
-	WriteRegister(BFPCTRL, 0x0F);
 	InitCanBuffers();
 	WriteRegister(CANINTE, CAN_RX0IF_BIT | CAN_RX1IF_BIT);
 	
 	//enable both receive-buffers to receive any message
-	BitModify(RXB0CTRL,  MCP_RXB_RX_MASK | MCP_RXB_BUKT_MASK, MCP_RXB_RX_STDEXT | MCP_RXB_BUKT_MASK);
-	BitModify(RXB1CTRL,MCP_RXB_RX_MASK, MCP_RXB_RX_STDEXT);
+	BitModify(RXB0CTRL, MCP_RXB_RX_MASK | MCP_RXB_BUKT_MASK, MCP_RXB_RX_STDEXT | MCP_RXB_BUKT_MASK);
+	BitModify(RXB1CTRL, MCP_RXB_RX_MASK, MCP_RXB_RX_STDEXT);
 	
 	SetCanSpeed(can_speed);
 	
@@ -160,9 +170,17 @@ void ProtocolHandlerMcp2515::Reset(void)
 
 unsigned char ProtocolHandlerMcp2515::SetMode(const unsigned char desired_mode)
 {
+	CREATE_LOGGER(logger)
 	unsigned char result;
-	BitModify(CANCTRL, MODE_MASK, desired_mode);
+	LOG(logger, (char*) "CANCTRL before BitModify:")
+	char* canctrl_string = (char*) malloc(10);
 	result = ReadRegister(CANCTRL);
+	LOG(logger,(char*) itoa(result, canctrl_string, 2)) 
+	BitModify(CANCTRL, MODE_MASK, desired_mode);
+	LOG(logger, (char*) "CANCTRL after BitModify:")
+	result = ReadRegister(CANCTRL);
+	LOG(logger, (char*) itoa(result, canctrl_string, 2))
+	free(canctrl_string);
 	// apply 1110 0000 mask to received content
 	result &= MODE_MASK;
 	if (result == desired_mode)
@@ -197,13 +215,13 @@ unsigned char ProtocolHandlerMcp2515::SetCanSpeed(unsigned char can_speed)
 	{
 	case (0): // enum 0 - MCP_5kBPS in CanController
 		SetBitRateRegisters(MCP_8MHz_5kBPS);
+		LOG(logger, (char*)"Setup CAN speed pass.")
+		return MCP_OK;
 		break;
-		default:
+	default:
 		LOG(logger, (char*)"Setup CAN speed fails.")
 		return MCP_FAIL;
 	}
-	LOG(logger, (char*)"Setup CAN speed pass.")
-	return MCP_OK;
 }
 
 bool ProtocolHandlerMcp2515::getPin(unsigned char pin)
