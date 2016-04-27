@@ -50,8 +50,6 @@ public:
 	~ProtocolHandlerMcp2515() {};
 	
 	unsigned char	Init(const unsigned char can_speed);
-	bool getPin(unsigned char pin);
-	void setPin(unsigned char port, unsigned char pin, bool level);
 	unsigned char mcp2515_read_status();
 	bool receiveMessage(canmsg_t * p_canmsg);
 	unsigned char sendMessage(canmsg_t * p_canmsg);

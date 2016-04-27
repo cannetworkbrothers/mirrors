@@ -73,47 +73,23 @@ void ProtocolHandlerMcp2515::InitCanBuffers(void)
 unsigned char ProtocolHandlerMcp2515::Init(const unsigned char can_speed)
 {
 	CREATE_LOGGER(logger);
-	unsigned char result = 0;
+	unsigned char result = MCP_FAIL;
+	char retries = 0;
 	LOG(logger, (char*)"MCP2515.Init started...")
-	Reset();
+	Reset(); // after reset MCP2515 should be in CONFIGURATION MODE
 	
-	// initialization only configure mode
-	if (GET_MODE != MODE_CONFIG) 
-		result = SetMode(MODE_CONFIG);
-	
-	//check if MODE_CONFIG was successfully set upped
-	if (result > 0)
+	// any way check it, if fails perform 5 retries
+	while (GET_MODE != MODE_CONFIG)
 	{
-		LOG(logger, (char*) "Failed to setup CONFIG_MODE")
-		return result;
+		retries++;
+		result = SetMode(MODE_CONFIG);
+		if (retries == 5 && result != MCP_OK)
+		{
+			LOG(logger, (char*) "CONFIG_MODE initialization fails")
+			return MCP_FAIL;
+		}
 	}
 	LOG(logger, (char*) "CONFIG_MODE has initialized successfully")
-	unsigned char time_value =ReadRegister(CANCTRL);
-	char  time_string[10] ="";
-	LOG(logger, itoa(time_value, time_string, 2));
-	
-	//// set all interrupt Flags
-	//WriteRegister(CANINTE, 0xFF);
-	//
-	//// configure filter
-	//WriteRegister(RXB0CTRL, 0x00); // use filter for standard and extended frames
-	//WriteRegister(RXB1CTRL, 0x00); // use filter for standard and extended frames
-//
-	//// initialize filter mask
-	//WriteRegister(RXM0SIDH, 0x00);
-	//WriteRegister(RXM0SIDL, 0x00);
-	//WriteRegister(RXM0EID8, 0x00);
-	//WriteRegister(RXM0EID0, 0x00);
-	//WriteRegister(RXM1SIDH, 0x00);
-	//WriteRegister(RXM1SIDL, 0x00);
-	//WriteRegister(RXM1EID8, 0x00);
-	//WriteRegister(RXM1EID0, 0x00);
-	//
-	//// set pin assigment RX0BF and RX1BF
-	//
-	//// RXnBF pin contrjl and status reg all 1 pins setting interrupt 
-	//// Теперь на них будет 0, когда данные будут в соответствующем буфере.
-	//WriteRegister(BFPCTRL, 0x0F);
 	
 	InitCanBuffers();
 	WriteRegister(CANINTE, CAN_RX0IF_BIT | CAN_RX1IF_BIT);
@@ -123,27 +99,33 @@ unsigned char ProtocolHandlerMcp2515::Init(const unsigned char can_speed)
 	BitModify(RXB0CTRL, MCP_RXB_RX_MASK | MCP_RXB_BUKT_MASK, MCP_RXB_RX_STDEXT | MCP_RXB_BUKT_MASK);
 	BitModify(RXB1CTRL, MCP_RXB_RX_MASK, MCP_RXB_RX_STDEXT);
 	
-	SetCanSpeed(can_speed);
-	
-	result = SetMode(MODE_NORMAL);
-	unsigned char time_value1 =ReadRegister(CANCTRL);
-	char  time_string1[10] ="";
-	LOG(logger, itoa(time_value1, time_string1, 2));
-	if (result > 0)
+	result = MCP_FAIL;
+	retries = 0;
+	while (result != MCP_OK)
 	{
-		LOG(logger, (char*)"Init of NORMAL_MODE fails.")
-		return result;
+		retries++;
+		result = SetCanSpeed(can_speed);
+		if (retries == 5 && result != MCP_OK)
+		{
+			LOG(logger, (char*) "Init - failed to set CAN speed")
+			return result;
+		}
 	}
-	LOG(logger, (char*)"Init of Normal_MODE success");
+	LOG(logger, (char*) "Init - successfully set upped CAN speed")
 	
-	/* Let's check some register value*/
-	char register_value[9];
-	char msg[] = "RXB1SIDH ";
-	char* out_message = (char*) malloc(30);
-	itoa(ReadRegister(RXB1SIDH), register_value, 2);
-	strmerge(msg, register_value, out_message);
-	LOG(logger, (char*)register_value)
-	free(out_message);
+	result = MCP_FAIL;
+	retries = 0;
+	while (result != MCP_OK)
+	{
+		retries++;
+		result = SetMode(MODE_NORMAL);
+		if (retries == 5 && result != MCP_OK)
+		{
+			LOG(logger, (char*) "Init - failed to get NORMAL_MODE")
+			return result;
+		}
+	}
+	LOG(logger, (char*) "Init - Initialization passed - NORMAL_MODE now")
 	return result;
 }
 
@@ -222,38 +204,14 @@ void ProtocolHandlerMcp2515::SetBitRateRegisters(unsigned char cnf1, unsigned ch
 
 unsigned char ProtocolHandlerMcp2515::SetCanSpeed(unsigned char can_speed)
 {
-	CREATE_LOGGER(logger)
 	switch (can_speed)
 	{
 	case (0): // enum 0 - MCP_5kBPS in CanController
 		SetBitRateRegisters(MCP2515_TIMINGS_500K);
-		LOG(logger, (char*)"Setup CAN speed pass.")
 		return MCP_OK;
 		break;
 	default:
-		LOG(logger, (char*)"Setup CAN speed fails.")
 		return MCP_FAIL;
-	}
-}
-
-bool ProtocolHandlerMcp2515::getPin(unsigned char pin)
-{
-	return true;
-}
-
-void ProtocolHandlerMcp2515::setPin(unsigned char port, unsigned char pin, bool level)
-{
-	if (level == true)
-	{
-		//set port.pin to High level
-		PORTB |= (1<<pin);	
-	} 
-	else
-	
-	
-	{
-		//set port.pin to LOW level
-		PORTB &= ~(1<<pin);
 	}
 }
 

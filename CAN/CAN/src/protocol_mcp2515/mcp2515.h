@@ -68,16 +68,11 @@
 #define MCP_ALLTXBUSY	(2)
 
 // standard timing definitions
+// MCP2515 crystal - 8 MHz
+// 
 #define MCP_8MHz_5kBPS	0x1f, 0xbf, 0x07 // enum 0 - CAN_5kBPS
-//#define MCP2515_TIMINGS_10K  0xfb, 0xad, 0x06	// PropSeg=6Tq, PS1=6Tq, PS2=7Tq, SamplePoint=65%, SJW=4
-//#define MCP2515_TIMINGS_20K  0xdd, 0xad, 0x06   // PropSeg=6Tq, PS1=6Tq, PS2=7Tq, SamplePoint=65%, SJW=4
-//#define MCP2515_TIMINGS_50K  0xcb, 0xad, 0x06   // PropSeg=6Tq, PS1=6Tq, PS2=7Tq, SamplePoint=65%, SJW=4
-//#define MCP2515_TIMINGS_100K 0xc5, 0xad, 0x06   // PropSeg=6Tq, PS1=6Tq, PS2=7Tq, SamplePoint=65%, SJW=4
-//#define MCP2515_TIMINGS_125K 0xc5, 0xa4, 0x04   // PropSeg=5Tq, PS1=5Tq, PS2=5Tq, SamplePoint=68.75%, SJW=4
-//#define MCP2515_TIMINGS_250K 0xc2, 0xa4, 0x04	// PropSeg=5Tq, PS1=5Tq, PS2=5Tq, SamplePoint=68.75%, SJW=4
-#define MCP2515_TIMINGS_500K 0xc1, 0x9a, 0x03   // PropSeg=3Tq, PS1=4Tq, PS2=4Tq, SamplePoint=66.67%, SJW=4
-//#define MCP2515_TIMINGS_800K 0xc0, 0xa3, 0x04   // PropSeg=4Tq, PS1=5Tq, PS2=5Tq, SamplePoint=66.67%, SJW=4
-//#define MCP2515_TIMINGS_1M   0xc0, 0x9a, 0x03   // PropSeg=4Tq, PS1=3Tq, PS2=4Tq, SamplePoint=66.67%, SJW=4
+#define MCP2515_TIMINGS_500K 0x00, 0x90, 0x02   // PropSeg=3Tq, PS1=3Tq, PS2=3Tq, SamplePoint=62.5%, SJW=1
+
 
 
 /*
