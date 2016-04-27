@@ -30,6 +30,7 @@ void ProtocolHandlerMcp2515::BitModify(unsigned char address, unsigned char mask
 	// set CS pin to low level
 	setPin(SPI_CS_PORT, SPI_CS_PIN, false);
 	
+	
 	LOG(logger, (char*) "SPI: sending command bit_modify")
 	SPI_TRANSMIT(MCP2515_CMD_BIT_MODIFY);
 	LOG(logger, (char*) "SPI: command sent")
@@ -45,6 +46,7 @@ void ProtocolHandlerMcp2515::BitModify(unsigned char address, unsigned char mask
 	
 	// release CS
 	setPin(SPI_CS_PORT, SPI_CS_PIN, true);
+	
 }
 
 void ProtocolHandlerMcp2515::InitCanBuffers(void)
@@ -84,6 +86,9 @@ unsigned char ProtocolHandlerMcp2515::Init(const unsigned char can_speed)
 		return result;
 	}
 	LOG(logger, (char*) "CONFIG_MODE has initialized successfully")
+	unsigned char time_value =ReadRegister(CANCTRL);
+	char  time_string[10] ="";
+	LOG(logger, itoa(time_value, time_string, 2));
 	
 	//// set all interrupt Flags
 	//WriteRegister(CANINTE, 0xFF);
@@ -111,6 +116,7 @@ unsigned char ProtocolHandlerMcp2515::Init(const unsigned char can_speed)
 	InitCanBuffers();
 	WriteRegister(CANINTE, CAN_RX0IF_BIT | CAN_RX1IF_BIT);
 	
+	
 	//enable both receive-buffers to receive any message
 	BitModify(RXB0CTRL, MCP_RXB_RX_MASK | MCP_RXB_BUKT_MASK, MCP_RXB_RX_STDEXT | MCP_RXB_BUKT_MASK);
 	BitModify(RXB1CTRL, MCP_RXB_RX_MASK, MCP_RXB_RX_STDEXT);
@@ -118,6 +124,9 @@ unsigned char ProtocolHandlerMcp2515::Init(const unsigned char can_speed)
 	SetCanSpeed(can_speed);
 	
 	result = SetMode(MODE_NORMAL);
+	unsigned char time_value1 =ReadRegister(CANCTRL);
+	char  time_string1[10] ="";
+	LOG(logger, itoa(time_value1, time_string1, 2));
 	if (result > 0)
 	{
 		LOG(logger, (char*)"Init of NORMAL_MODE fails.")
@@ -176,6 +185,7 @@ unsigned char ProtocolHandlerMcp2515::SetMode(const unsigned char desired_mode)
 	char* canctrl_string = (char*) malloc(10);
 	result = ReadRegister(CANCTRL);
 	LOG(logger,(char*) itoa(result, canctrl_string, 2)) 
+	LOG(logger, (char*) itoa(desired_mode, canctrl_string,2 ))
 	BitModify(CANCTRL, MODE_MASK, desired_mode);
 	LOG(logger, (char*) "CANCTRL after BitModify:")
 	result = ReadRegister(CANCTRL);
@@ -214,7 +224,7 @@ unsigned char ProtocolHandlerMcp2515::SetCanSpeed(unsigned char can_speed)
 	switch (can_speed)
 	{
 	case (0): // enum 0 - MCP_5kBPS in CanController
-		SetBitRateRegisters(MCP_8MHz_5kBPS);
+		SetBitRateRegisters(MCP2515_TIMINGS_500K);
 		LOG(logger, (char*)"Setup CAN speed pass.")
 		return MCP_OK;
 		break;
@@ -234,12 +244,14 @@ void ProtocolHandlerMcp2515::setPin(unsigned char port, unsigned char pin, bool 
 	if (level == true)
 	{
 		//set port.pin to High level
-		port |= (1<<pin);	
+		PORTB |= (1<<pin);	
 	} 
 	else
+	
+	
 	{
 		//set port.pin to LOW level
-		port &= ~(1<<pin);
+		PORTB &= ~(1<<pin);
 	}
 }
 
@@ -288,7 +300,7 @@ unsigned char ProtocolHandlerMcp2515::mcp2515_rx_status(){
 	
 	
 }
-
+// 
 bool ProtocolHandlerMcp2515::receiveMessage(canmsg_t * p_canmsg){
 		
 	unsigned char status = mcp2515_rx_status();

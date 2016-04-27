@@ -18,7 +18,11 @@ void CanInterface::init(){
 }
 
 bool CanInterface::sendMessage(canmsg_t * p_canmsg){
-	can_protocol_.sendMessage(p_canmsg);
+	bool status_message = can_protocol_.sendMessage(p_canmsg);
 	
-	return 0;
+	return status_message;
+}
+bool CanInterface::receiveMessage(canmsg_t * p_canmsg) {
+	bool status_message = can_protocol_.receiveMessage(p_canmsg);
+	return status_message;
 }

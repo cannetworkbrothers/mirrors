@@ -75,7 +75,7 @@
 //#define MCP2515_TIMINGS_100K 0xc5, 0xad, 0x06   // PropSeg=6Tq, PS1=6Tq, PS2=7Tq, SamplePoint=65%, SJW=4
 //#define MCP2515_TIMINGS_125K 0xc5, 0xa4, 0x04   // PropSeg=5Tq, PS1=5Tq, PS2=5Tq, SamplePoint=68.75%, SJW=4
 //#define MCP2515_TIMINGS_250K 0xc2, 0xa4, 0x04	// PropSeg=5Tq, PS1=5Tq, PS2=5Tq, SamplePoint=68.75%, SJW=4
-//#define MCP2515_TIMINGS_500K 0xc1, 0x9a, 0x03   // PropSeg=3Tq, PS1=4Tq, PS2=4Tq, SamplePoint=66.67%, SJW=4
+#define MCP2515_TIMINGS_500K 0xc1, 0x9a, 0x03   // PropSeg=3Tq, PS1=4Tq, PS2=4Tq, SamplePoint=66.67%, SJW=4
 //#define MCP2515_TIMINGS_800K 0xc0, 0xa3, 0x04   // PropSeg=4Tq, PS1=5Tq, PS2=5Tq, SamplePoint=66.67%, SJW=4
 //#define MCP2515_TIMINGS_1M   0xc0, 0x9a, 0x03   // PropSeg=4Tq, PS1=3Tq, PS2=4Tq, SamplePoint=66.67%, SJW=4
 

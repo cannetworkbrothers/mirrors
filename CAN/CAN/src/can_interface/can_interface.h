@@ -29,7 +29,7 @@ class CanInterface
 	~CanInterface() {};
 		
 	void init();
-	unsigned char receiveMessage(canmsg_t * p_canmsg);
+	bool receiveMessage(canmsg_t * p_canmsg);
 	bool sendMessage(canmsg_t * p_canmsg);
 		
 };
