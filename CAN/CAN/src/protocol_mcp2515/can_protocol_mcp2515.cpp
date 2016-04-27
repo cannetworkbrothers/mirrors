@@ -17,7 +17,9 @@
 #include <util/delay.h>
 #include <stdlib.h>
 
-// macro for micro controller callback, will be used in appropriate MCP2515 functions 
+// macro for micro controller callback, will be used in appropriate MCP2515 functions
+// when MCP2515 call controller_spi_transmit, will be invoked callback controller_p
+// controller_p is actually function pointer, it is initialized
 #define SPI_TRANSMIT(adr) ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, adr);
 
 /* 
@@ -28,7 +30,7 @@ void ProtocolHandlerMcp2515::BitModify(unsigned char address, unsigned char mask
 	
 	CREATE_LOGGER(logger)
 	// set CS pin to low level
-	setPin(SPI_CS_PORT, SPI_CS_PIN, false);
+	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
 	
 	
 	LOG(logger, (char*) "SPI: sending command bit_modify")
@@ -45,7 +47,7 @@ void ProtocolHandlerMcp2515::BitModify(unsigned char address, unsigned char mask
 	LOG(logger, (char*) "SPI: data sent")
 	
 	// release CS
-	setPin(SPI_CS_PORT, SPI_CS_PIN, true);
+	UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
 	
 }
 
@@ -150,14 +152,14 @@ unsigned char ProtocolHandlerMcp2515::ReadRegister(unsigned char address)
 	unsigned char data;
 	
 	//Set CS pin to low level
-	setPin(SPI_CS_PORT, SPI_CS_PIN, false);
+	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
 	
 	SPI_TRANSMIT(READ);
 	SPI_TRANSMIT(address);
 	
 	data = SPI_TRANSMIT(0xFF);
 	
-	setPin(SPI_CS_PORT, SPI_CS_PIN, true);
+	UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
 	return data;
 }
 
@@ -166,13 +168,13 @@ void ProtocolHandlerMcp2515::Reset(void)
 	CREATE_LOGGER(logger)
 	LOG(logger, (char*)"MCP2515.Reset started ...")
 	//to start SPI transfer need to push CS low level (chip select or slave select)
-	setPin(SPI_CS_PORT, SPI_CS_PIN, false);
+	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
 	LOG(logger, (char*)"SPI is ready")
 	//send 8bit via SPI
 	SPI_TRANSMIT(RESET);
 	LOG(logger, (char*)"SPI transmit ended")
 	//to end SPI transfer need to push CS to high level (chip select or slave select)
-	setPin(SPI_CS_PORT, SPI_CS_PIN, true);
+	UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
 	_delay_ms(10);
 	
 }
@@ -258,26 +260,26 @@ void ProtocolHandlerMcp2515::setPin(unsigned char port, unsigned char pin, bool 
 void ProtocolHandlerMcp2515::WriteRegister(unsigned char address, unsigned char data)
 {
 	  // set CS pin to low level
-		setPin(SPI_CS_PORT, SPI_CS_PIN, false);
+		SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
 		
 		SPI_TRANSMIT(WRITE);
 		SPI_TRANSMIT(address);
 		SPI_TRANSMIT(data);
 		
 		// release SS
-		setPin(SPI_CS_PORT, SPI_CS_PIN, true);
+		UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
 }
 
 unsigned char ProtocolHandlerMcp2515::mcp2515_read_status() {
 
 	// set CS pin to low level
-	setPin(SPI_CS_PORT, SPI_CS_PIN, false);
+	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
 	
 	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, MCP2515_CMD_READ_STATUS );
 	unsigned char status = ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
 	
 	// release SS
-	setPin(SPI_CS_PORT, SPI_CS_PIN, true);
+	UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
 
 	return status;
 }
@@ -287,14 +289,14 @@ unsigned char ProtocolHandlerMcp2515::mcp2515_rx_status(){
 	// function implementation command rx status in SPI interface. This command return whether message any buffers and wich format can message
 	
 	// set CS pin to low lewel
-	setPin(SPI_CS_PORT, SPI_CS_PIN, false);
+	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
 	
 	
 	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, MCP2515_CMD_RX_STATUS);
 	unsigned char status = ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
 	
 	// release SS
-	setPin(SPI_CS_PORT, SPI_CS_PIN, true);
+	UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
 	
 	return status;
 	
@@ -315,7 +317,7 @@ bool ProtocolHandlerMcp2515::receiveMessage(canmsg_t * p_canmsg){
 	p_canmsg->flags.extended = (status >> 4) & 0x01;
 
 	
-	setPin(SPI_CS_PORT, SPI_CS_PIN, false);
+	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
 	
 	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, MCP2515_CMD_READ_RX | Mask_address_rx_buffer);
 	
@@ -353,7 +355,7 @@ bool ProtocolHandlerMcp2515::receiveMessage(canmsg_t * p_canmsg){
 	 
 	// release SS
 	// set CS pin to low lewel
-	setPin(SPI_CS_PORT, SPI_CS_PIN, false);
+	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
 	return 1;
 }
 
@@ -392,7 +394,7 @@ unsigned char ProtocolHandlerMcp2515::sendMessage(canmsg_t * p_canmsg) {
    
   
   // set CS pin to low level..
-   setPin(SPI_CS_PORT, SPI_CS_PIN, false);
+   SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
   
   ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, address_load_buffer);
 
@@ -431,7 +433,7 @@ unsigned char ProtocolHandlerMcp2515::sendMessage(canmsg_t * p_canmsg) {
    
    
    // release SS
-   setPin(SPI_CS_PORT, SPI_CS_PIN, true);
+   UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
    
    //_delay(1); ????????????????????????????????????????????????
    
@@ -445,13 +447,13 @@ unsigned char ProtocolHandlerMcp2515::sendMessage(canmsg_t * p_canmsg) {
 	//    will be cleared automatically
 	
    // set CS pin to low lewel..
-   setPin(SPI_CS_PORT, SPI_CS_PIN, false);
+   SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
    
    if (address_load_buffer == LOADBUF0_TX_SH) address_load_buffer = RTS_TXB0;
    ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, address_load_buffer);
    
    // release SS
-   setPin(SPI_CS_PORT, SPI_CS_PIN, true);
+   UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
    // check if interrupt
    unsigned char INTERRUPT_FLAGS = ReadRegister(CANINTF);
    

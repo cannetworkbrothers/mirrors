@@ -15,10 +15,8 @@
 
 // 0xe0 this mask 1110 0000 for compare read data with CANSTAT, register 10-2, page 61
 #define GET_MODE (ReadRegister(CANSTAT) & 0xE0)
-
-#define SET_MODE(mode) WriteRegister(CANSTAT, (ReadRegister(CANSTAT)& (mode+0x0F)))  //  mode - have hight rate byte
-																					// 0x0f -this mask low 4-bit/
-																					// op. & not change low bin when recordig
+#define SELECT_CAN_CHIP(port_name, pin_name)	port_name &= ~(1<<pin_name);
+#define UNSELECT_CAN_CHIP(port_name, pin_name)	port_name |= (1<<pin_name);
 
 #include <avr/io.h>
 #include "../protocol_handler/protocol_handler.h"
