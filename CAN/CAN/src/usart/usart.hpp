@@ -14,11 +14,9 @@
 #endif
 
 class USART  {
-	protected:
-	long baud_rate_;
 	
 	public:
-	USART(const long baud = 9600);
+	USART(const long baud = USART_SPEED);
 	~USART();
 	
 	unsigned char	ReceiveChar(void);

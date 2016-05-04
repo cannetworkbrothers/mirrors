@@ -244,9 +244,9 @@ unsigned char ProtocolHandlerMcp2515::mcp2515_read_status() {
 
 unsigned char ProtocolHandlerMcp2515::mcp2515_rx_status(){
 	
-	// function implementation command rx status in SPI interface. This command return whether message any buffers and wich format can message
+	// function implementation command Rx status in SPI interface. This command return whether message any buffers and which format can message
 	
-	// set CS pin to low lewel
+	// set CS pin to low level
 	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
 	
 	
@@ -262,13 +262,30 @@ unsigned char ProtocolHandlerMcp2515::mcp2515_rx_status(){
 }
 // 
 bool ProtocolHandlerMcp2515::receiveMessage(canmsg_t * p_canmsg){
+	
+	CREATE_LOGGER(logger)
 		
-	unsigned char status = mcp2515_rx_status();
+	unsigned char status =  0; //temporary for debug, combine with mcp2515_rx_status
+	char* status_rx_value = (char*) malloc(10);
+	LOG(logger, (char*) itoa(status, status_rx_value, 2))
+	status = mcp2515_rx_status();
+	LOG(logger, (char*) "Status RX got:")
+	LOG(logger, (char*) itoa(status, status_rx_value, 2))
+	free(status_rx_value);
 	unsigned char Mask_address_rx_buffer;
 	
-	if(status == Message_in_RX0) Mask_address_rx_buffer = Buffer_RX0;
-	else if(status == Message_in_RX1) Mask_address_rx_buffer = Buffer_RX1;
-	else return 0;
+	if(status == MESSAGE_IN_RX0) {
+		Mask_address_rx_buffer = BUFFER_RX0;
+		LOG(logger, (char*) "Message in Rx0")
+	}
+	else if(status == MESSAGE_IN_RX1) {
+		Mask_address_rx_buffer = BUFFER_RX1;
+		LOG(logger, (char*) "Message in Rx1")
+	}
+	else {
+		LOG(logger, (char*) "Undefined behavior")
+		return 0;
+	}
 	
 	// store flags
 	p_canmsg->flags.rtr = (status >> 3) & 0x01;
@@ -304,7 +321,7 @@ bool ProtocolHandlerMcp2515::receiveMessage(canmsg_t * p_canmsg){
 			 p_canmsg->data[i] = ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
 		 }
 	 }
-     // reset flag rx buffers register when empty
+     // reset flag Rx buffers register when empty
 	 
 	 if (Mask_address_rx_buffer == 0) Mask_address_rx_buffer = 1;
 	 else Mask_address_rx_buffer = 2;
@@ -312,7 +329,7 @@ bool ProtocolHandlerMcp2515::receiveMessage(canmsg_t * p_canmsg){
 	 
 	 
 	// release SS
-	// set CS pin to low lewel
+	// set CS pin to low level
 	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
 	return 1;
 }

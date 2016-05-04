@@ -6,7 +6,7 @@
  */ 
 #include "usart.hpp"
 
-USART::USART(const long baud /* = 9600 */) {
+USART::USART(const long baud /* = USART_SPEED */) {
 	/* Set baud rate */
 	#define BAUD_PRESCALLER (((F_CPU / (baud * 16UL))) - 1)
 	UBRRH = (unsigned char)(BAUD_PRESCALLER>>8);

@@ -29,21 +29,28 @@ int main(void)
 	
 	LOG(logger, (char*) "END!!!")
 	// create buffer for CAN message
-	canmsg_t * buffer_message_1[10];
+	canmsg_t * p_can_message = (canmsg_t*) malloc(sizeof(canmsg_t));
+	for (int i = 0; i < 8; i++)
+	{
+		p_can_message->data[i] = 2;
+	}
 	// initiate filed "data" for control changes 
-	for(int message_number =0; message_number<=10; message_number++){
-		for(int bit_data = 0; bit_data<=7; bit_data++){
-			buffer_message_1[message_number]->data[bit_data] = 2;
-		}
-	}
+	//for(int message_number =0; message_number<=10; message_number++){
+		//for(int bit_data = 0; bit_data<=7; bit_data++){
+			//can_messages_data_array[message_number]->data[bit_data] = 2;
+		//}
+	//}
 	// Write CAN message in input buffer MCU
-	for(int message_number =0; message_number<=10; message_number++){
-	bool receive_status = can_interface.receiveMessage( buffer_message_1[message_number]);
-	if(receive_status == 1)	{
-		LOG(logger, (char*) &buffer_message_1[message_number]->data);
-	} else {
-	 LOG(logger, (char*) "Not receive CAN massage");
-	}
+	bool receive_status = false;
+	while (true)
+	{
+		receive_status = can_interface.receiveMessage(p_can_message);
+		if(receive_status == 1)	{
+			LOG(logger, (char*) &p_can_message->data);
+		} 
+		else {
+			LOG(logger, (char*) "Not receive CAN massage");
+		}
 	}
 	//char msg[] = "HelloIgor. ";
 	//char portb_value[9];
