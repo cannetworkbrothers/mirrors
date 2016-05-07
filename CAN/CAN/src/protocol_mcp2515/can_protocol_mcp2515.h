@@ -33,6 +33,7 @@ private:
 	void			BitModify(unsigned char address, unsigned char mask, unsigned char data);
 	void			InitCanBuffers(void);
 	unsigned char	ReadRegister(const unsigned char address);
+	void			ReadRxBuffer(unsigned char buffer_address, unsigned char status_rx, canmsg_t * p_canmsg);
 	void			Reset(void);
 	void			SetBitRateRegisters(unsigned char cnf1, unsigned char cnf2, unsigned char cnf3);
 	unsigned char	SetCanSpeed(unsigned char can_speed);
@@ -51,7 +52,13 @@ public:
 	
 	unsigned char	Init(const unsigned char can_speed);
 	unsigned char mcp2515_read_status();
-	bool receiveMessage(canmsg_t * p_canmsg);
+	bool receiveMessage(canmsg_t * p_canmsg_1);
+	
+	bool receiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2);
+	
+	bool receiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2,
+						canmsg_t * p_canmsg_3, canmsg_t * p_canmsg_4);
+						
 	unsigned char sendMessage(canmsg_t * p_canmsg);
 	bool writeMessage(canmsg_t * p_canmsg);
 	unsigned char mcp2515_rx_status();

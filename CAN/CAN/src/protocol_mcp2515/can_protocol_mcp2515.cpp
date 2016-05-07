@@ -145,6 +145,46 @@ unsigned char ProtocolHandlerMcp2515::ReadRegister(unsigned char address)
 	return data;
 }
 
+void ProtocolHandlerMcp2515::ReadRxBuffer(unsigned char buffer_address, unsigned char status_rx, canmsg_t * p_canmsg)
+{
+	// store flags
+	p_canmsg->flags.rtr = (status_rx >> 3) & 0x01;
+	p_canmsg->flags.extended = (status_rx >> 4) & 0x01;
+
+	
+	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
+	
+	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, MCP2515_CMD_READ_RX | buffer_address);
+	
+	if(p_canmsg->flags.extended){
+		p_canmsg->id = (unsigned long) ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff) << 21;
+		unsigned long temp = ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
+		p_canmsg->id |= (temp & 0xe0) << 13;
+		p_canmsg->id |= (temp & 0x03) << 16;
+		p_canmsg->id |= (unsigned long) ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff) << 8;
+		p_canmsg->id |= (unsigned long)  ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
+		} else {
+		p_canmsg->id =  (unsigned long)  ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff) << 3;
+		p_canmsg->id |= (unsigned long)  ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff) >> 5;
+		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
+		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
+	}
+	
+	// get length and data
+	
+	p_canmsg->dlc = ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff) & 0x0f;
+	if (!p_canmsg->flags.rtr) {
+		unsigned char i;
+		unsigned char length = p_canmsg->dlc;
+		if (length > 8) length = 8;
+		for (i = 0; i < length; i++) {
+			p_canmsg->data[i] = ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
+		}
+	}
+	
+	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
+}
+
 void ProtocolHandlerMcp2515::Reset(void)
 {
 	CREATE_LOGGER(logger)
@@ -261,81 +301,62 @@ unsigned char ProtocolHandlerMcp2515::mcp2515_rx_status(){
 	
 }
 // 
-bool ProtocolHandlerMcp2515::receiveMessage(canmsg_t * p_canmsg){
-	
-	CREATE_LOGGER(logger)
-		
-	unsigned char status =  0; //temporary for debug, combine with mcp2515_rx_status
-	char* status_rx_value = (char*) malloc(10);
-	LOG(logger, (char*) itoa(status, status_rx_value, 2))
-	status = mcp2515_rx_status();
-	LOG(logger, (char*) "Status RX got:")
-	LOG(logger, (char*) itoa(status, status_rx_value, 2))
-	free(status_rx_value);
-	unsigned char Mask_address_rx_buffer;
-	
-	if(status == MESSAGE_IN_RX0) {
-		Mask_address_rx_buffer = BUFFER_RX0;
-		LOG(logger, (char*) "Message in Rx0")
-	}
-	else if(status == MESSAGE_IN_RX1) {
-		Mask_address_rx_buffer = BUFFER_RX1;
-		LOG(logger, (char*) "Message in Rx1")
-	}
-	else {
-		LOG(logger, (char*) "Undefined behavior")
-		return 0;
-	}
-	
-	// store flags
-	p_canmsg->flags.rtr = (status >> 3) & 0x01;
-	p_canmsg->flags.extended = (status >> 4) & 0x01;
-
-	
-	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
-	
-	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, MCP2515_CMD_READ_RX | Mask_address_rx_buffer);
-	
-	if(p_canmsg->flags.extended){
-		p_canmsg->id = (unsigned long) ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff) << 21;
-		 unsigned long temp = ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
-		 p_canmsg->id |= (temp & 0xe0) << 13;
-		 p_canmsg->id |= (temp & 0x03) << 16;
-		 p_canmsg->id |= (unsigned long) ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff) << 8;
-		 p_canmsg->id |= (unsigned long)  ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
-		 } else {
-		 p_canmsg->id =  (unsigned long)  ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff) << 3;
-		 p_canmsg->id |= (unsigned long)  ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff) >> 5;
-		  ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
-		  ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
-	 }
-	 
-	 // get length and data
-	
-	 p_canmsg->dlc = ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff) & 0x0f;
-	 if (!p_canmsg->flags.rtr) {
-		 unsigned char i;
-		 unsigned char length = p_canmsg->dlc;
-		 if (length > 8) length = 8;
-		 for (i = 0; i < length; i++) {
-			 p_canmsg->data[i] = ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
-		 }
-	 }
-     // reset flag Rx buffers register when empty
-	 
-	 if (Mask_address_rx_buffer == 0) Mask_address_rx_buffer = 1;
-	 else Mask_address_rx_buffer = 2;
-	 BitModify(MCP2515_REG_CANINTF, Mask_address_rx_buffer, 0);
-	 
-	 
-	// release SS
-	// set CS pin to low level
-	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
+bool ProtocolHandlerMcp2515::receiveMessage(canmsg_t * p_canmsg_1)
+{
+	// just a stub, could be deleted after with appropriate virtual functions
+	// to do - should be added configuration of buffers to remove unnecessary functions
+	// conditional compilation
 	return 1;
 }
 
 	
 	
+
+bool ProtocolHandlerMcp2515::receiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2)
+{
+	CREATE_LOGGER(logger)
+	
+	unsigned char status =  0; //temporary for debug, combine with mcp2515_rx_status
+	bool return_status = false;
+	
+	#if ENABLE_LOG == ON
+	char* status_rx_value = (char*) malloc(10);
+	LOG(logger, (char*) itoa(status, status_rx_value, 2))
+	#endif
+	
+	status = mcp2515_rx_status();
+	
+	#if ENABLE_LOG == ON
+	LOG(logger, (char*) "Status RX got:")
+	LOG(logger, (char*) itoa(status, status_rx_value, 2))
+	free(status_rx_value);
+	#endif
+	
+	if( (status & (1 << MESSAGE_IN_RX0)) != 0) {
+		ReadRxBuffer(BUFFER_RX0, status, p_canmsg_1);
+		p_canmsg_1->timestamp = 0; //for debug purpose, this indicates that timestamp was changed
+		return_status = true;
+	}
+	if( (status & (1 << MESSAGE_IN_RX1)) != 0) {
+		ReadRxBuffer(BUFFER_RX1, status, p_canmsg_2);
+		p_canmsg_2->timestamp = 0;
+		return_status = true;
+	}
+	else {
+		LOG(logger, (char*) "No message received")
+		return return_status;
+	}
+	
+	return return_status;
+}
+
+bool ProtocolHandlerMcp2515::receiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2, canmsg_t * p_canmsg_3, canmsg_t * p_canmsg_4)
+{
+	// just a stub, could be deleted after with appropriate virtual functions
+	// to do - should be added configuration of buffers to remove unnecessary functions
+	// conditional compilation
+	return 1;
+}
 
 unsigned char ProtocolHandlerMcp2515::sendMessage(canmsg_t * p_canmsg) {
 

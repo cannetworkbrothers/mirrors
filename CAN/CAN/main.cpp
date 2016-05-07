@@ -29,11 +29,8 @@ int main(void)
 	
 	LOG(logger, (char*) "END!!!")
 	// create buffer for CAN message
-	canmsg_t * p_can_message = (canmsg_t*) malloc(sizeof(canmsg_t));
-	for (int i = 0; i < 8; i++)
-	{
-		p_can_message->data[i] = 2;
-	}
+	canmsg_t * p_can_message_1 = (canmsg_t*) malloc(sizeof(canmsg_t));
+	canmsg_t * p_can_message_2 = (canmsg_t*) malloc(sizeof(canmsg_t));
 	// initiate filed "data" for control changes 
 	//for(int message_number =0; message_number<=10; message_number++){
 		//for(int bit_data = 0; bit_data<=7; bit_data++){
@@ -44,12 +41,46 @@ int main(void)
 	bool receive_status = false;
 	while (true)
 	{
-		receive_status = can_interface.receiveMessage(p_can_message);
-		if(receive_status == 1)	{
-			LOG(logger, (char*) &p_can_message->data);
+		p_can_message_1->timestamp = 255;
+		p_can_message_2->timestamp = 255;
+		receive_status = can_interface.receiveMessage(p_can_message_1, p_can_message_2);
+		if(receive_status == 1)	
+		{
+			if (p_can_message_1->timestamp == 0)
+			{
+				LOG(logger, (char*) "Message in Rx0")
+				char* data_str = (char*) malloc(3);
+				
+				itoa(p_can_message_1->id, data_str, 16);
+				LOG(logger, (char*) data_str)
+	
+				for (int i = 0; i < 8; ++i)
+				{
+					/* code */
+					itoa(p_can_message_1->data[i], data_str, 16);
+					LOG(logger, (char*) data_str)
+				}
+				free(data_str);
+			}
+			if (p_can_message_2->timestamp == 0)
+			{
+				LOG(logger, (char*) "Message in Rx1")
+				char* data_str = (char*) malloc(3);
+				
+				itoa(p_can_message_2->id, data_str, 16);
+				LOG(logger, (char*) data_str)
+				
+				for (int i = 0; i < 8; ++i)
+				{
+					/* code */
+					itoa(p_can_message_2->data[i], data_str, 16);
+					LOG(logger, (char*) data_str)
+				}
+				free(data_str);
+			}
 		} 
 		else {
-			LOG(logger, (char*) "Not receive CAN massage");
+			LOG(logger, (char*) "Not received CAN massage");
 		}
 	}
 	//char msg[] = "HelloIgor. ";

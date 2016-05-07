@@ -12,8 +12,8 @@
 
 unsigned char ControllerAtmega8::SpiMasterTransmit(unsigned char cData){
 	
-	CREATE_LOGGER(logger)
-	LOG(logger, (char*)"atmega8.SpiTransmit started ..")
+	//CREATE_LOGGER(logger)
+	//LOG(logger, (char*)"atmega8.SpiTransmit started ..")
 	/* Start transmission*/
 	SPDR = cData;
 	
@@ -21,7 +21,7 @@ unsigned char ControllerAtmega8::SpiMasterTransmit(unsigned char cData){
 	//while( (SPSR | (1<<SPIF) ) == 0x00) {LOG(logger, (char*)"transmitting...")};
 	while(!(SPSR & (1<<SPIF)));
 	
-	LOG(logger, (char*) "atmega8.SpiTransmit end.")
+	//LOG(logger, (char*) "atmega8.SpiTransmit end.")
 	return SPDR;
 };
 					
