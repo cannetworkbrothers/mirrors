@@ -100,10 +100,10 @@
 #define MCP2515_CMD_READ_STATUS 0xA0
 #define MCP2515_CMD_BIT_MODIFY 0x05
 #define MCP2515_CMD_RX_STATUS 0xb0
-//#define MESSAGE_IN_RX0 0x40
-//#define MESSAGE_IN_RX1 0x80
-#define MESSAGE_IN_RX0 6
-#define MESSAGE_IN_RX1 7
+#define MESSAGE_IN_RX0 0x40
+#define MESSAGE_IN_RX1 0x80
+//#define MESSAGE_IN_RX0 6
+//#define MESSAGE_IN_RX1 7
 #define BUFFER_RX0 0x00  // mask for calculate and select buffer rx0 within command READ RX BUFFER INSTRUCTION
 #define BUFFER_RX1 0x04 // for rx1
 #define MCP2515_CMD_READ_RX 0x90 // read in buffer rx0 

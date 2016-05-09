@@ -51,6 +51,9 @@ int main(void)
 				LOG(logger, (char*) "Message in Rx0")
 				char* data_str = (char*) malloc(3);
 				
+				itoa(p_can_message_1->flags.extended, data_str, 10);
+				LOG(logger, (char*) data_str)
+				
 				itoa(p_can_message_1->id, data_str, 16);
 				LOG(logger, (char*) data_str)
 	
@@ -66,6 +69,9 @@ int main(void)
 			{
 				LOG(logger, (char*) "Message in Rx1")
 				char* data_str = (char*) malloc(3);
+				
+				itoa(p_can_message_2->flags.extended, data_str, 10);
+				LOG(logger, (char*) data_str)
 				
 				itoa(p_can_message_2->id, data_str, 16);
 				LOG(logger, (char*) data_str)

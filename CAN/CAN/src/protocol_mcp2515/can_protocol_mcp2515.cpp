@@ -332,12 +332,12 @@ bool ProtocolHandlerMcp2515::receiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_
 	free(status_rx_value);
 	#endif
 	
-	if( (status & (1 << MESSAGE_IN_RX0)) != 0) {
+	if( (status & MESSAGE_IN_RX0) == MESSAGE_IN_RX0) {
 		ReadRxBuffer(BUFFER_RX0, status, p_canmsg_1);
 		p_canmsg_1->timestamp = 0; //for debug purpose, this indicates that timestamp was changed
 		return_status = true;
 	}
-	if( (status & (1 << MESSAGE_IN_RX1)) != 0) {
+	if( (status & MESSAGE_IN_RX1) == MESSAGE_IN_RX1) {
 		ReadRxBuffer(BUFFER_RX1, status, p_canmsg_2);
 		p_canmsg_2->timestamp = 0;
 		return_status = true;
