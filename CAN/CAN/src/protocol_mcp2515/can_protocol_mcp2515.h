@@ -35,6 +35,7 @@ private:
 	unsigned char	IsMessageInRxBuffers();
 	unsigned char	ReadRegister(const unsigned char address);
 	void			ReadRxBuffer(unsigned char buffer_address, unsigned char status_rx, canmsg_t * p_canmsg);
+	unsigned char	ReadStatus();
 	void			Reset(void);
 	void			SetBitRateRegisters(unsigned char cnf1, unsigned char cnf2, unsigned char cnf3);
 	unsigned char	SetCanSpeed(unsigned char can_speed);
@@ -47,20 +48,11 @@ public:
 	~ProtocolHandlerMcp2515() {};
 	
 	unsigned char	Init(const unsigned char can_speed);
-	unsigned char mcp2515_read_status();
-	bool ReceiveMessage(canmsg_t * p_canmsg_1);
-	
-	bool ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2);
-	
-	bool ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2,
-						canmsg_t * p_canmsg_3, canmsg_t * p_canmsg_4);
-						
-	unsigned char sendMessage(canmsg_t * p_canmsg);
-	bool writeMessage(canmsg_t * p_canmsg);
-	
-	
-	};
-
-
+	bool			ReceiveMessage(canmsg_t * p_canmsg);
+	bool			ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2);
+	bool			ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2,
+						canmsg_t * p_canmsg_3, canmsg_t * p_canmsg_4);				
+	unsigned char	SendMessage(canmsg_t * p_canmsg);
+};
 
 #endif /* CAN_PROTOCOL_MCP2515_H_ */

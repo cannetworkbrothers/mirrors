@@ -17,8 +17,8 @@ void CanInterface::init(){
 	LOG(logger, (char*) "CanInterface.Init() ended.")
 }
 
-bool CanInterface::sendMessage(canmsg_t * p_canmsg){
-	bool status_message = can_protocol_.sendMessage(p_canmsg);
+bool CanInterface::SendMessage(canmsg_t * p_canmsg){
+	bool status_message = can_protocol_.SendMessage(p_canmsg);
 	
 	return status_message;
 }

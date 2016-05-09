@@ -40,7 +40,7 @@ class CanInterface
 	bool ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2, 
 						canmsg_t * p_canmsg_3, canmsg_t * p_canmsg_4);
 	
-	bool sendMessage(canmsg_t * p_canmsg);
+	bool SendMessage(canmsg_t * p_canmsg);
 		
 };
 

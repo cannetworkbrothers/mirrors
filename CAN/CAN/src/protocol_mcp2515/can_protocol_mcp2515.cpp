@@ -70,6 +70,24 @@ void ProtocolHandlerMcp2515::InitCanBuffers(void)
 	WriteRegister(RXB1CTRL, 0);
 }
 
+unsigned char ProtocolHandlerMcp2515::IsMessageInRxBuffers(){
+	
+	// function implementation command Rx status in SPI interface.
+	// this command return whether message any buffers and which format can message
+	
+	// set CS pin to low level
+	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
+	
+	
+	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, MCP2515_CMD_RX_STATUS);
+	unsigned char status = ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
+	
+	// release SS
+	UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
+	
+	return status;
+}
+
 unsigned char ProtocolHandlerMcp2515::Init(const unsigned char can_speed)
 {
 	CREATE_LOGGER(logger);
@@ -185,6 +203,20 @@ void ProtocolHandlerMcp2515::ReadRxBuffer(unsigned char buffer_address, unsigned
 	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
 }
 
+unsigned char ProtocolHandlerMcp2515::ReadStatus() {
+
+	// set CS pin to low level
+	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
+	
+	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, MCP2515_CMD_READ_STATUS );
+	unsigned char status = ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
+	
+	// release SS
+	UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
+
+	return status;
+}
+
 void ProtocolHandlerMcp2515::Reset(void)
 {
 	CREATE_LOGGER(logger)
@@ -268,40 +300,8 @@ void ProtocolHandlerMcp2515::WriteRegister(unsigned char address, unsigned char 
 		UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
 }
 
-unsigned char ProtocolHandlerMcp2515::mcp2515_read_status() {
-
-	// set CS pin to low level
-	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
-	
-	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, MCP2515_CMD_READ_STATUS );
-	unsigned char status = ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
-	
-	// release SS
-	UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
-
-	return status;
-}
-
-unsigned char ProtocolHandlerMcp2515::IsMessageInRxBuffers(){
-	
-	// function implementation command Rx status in SPI interface. This command return whether message any buffers and which format can message
-	
-	// set CS pin to low level
-	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
-	
-	
-	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, MCP2515_CMD_RX_STATUS);
-	unsigned char status = ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0xff);
-	
-	// release SS
-	UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
-	
-	return status;
-	
-	
-}
 // 
-bool ProtocolHandlerMcp2515::ReceiveMessage(canmsg_t * p_canmsg_1)
+bool ProtocolHandlerMcp2515::ReceiveMessage(canmsg_t * p_canmsg)
 {
 	// just a stub, could be deleted after with appropriate virtual functions
 	// to do - should be added configuration of buffers to remove unnecessary functions
@@ -358,83 +358,83 @@ bool ProtocolHandlerMcp2515::ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_
 	return 1;
 }
 
-unsigned char ProtocolHandlerMcp2515::sendMessage(canmsg_t * p_canmsg) {
+unsigned char ProtocolHandlerMcp2515::SendMessage(canmsg_t * p_canmsg) {
 
- unsigned char status = mcp2515_read_status();
- unsigned char address_load_buffer;
- unsigned char length;
-
- 
- // check length
- length = p_canmsg->dlc;
- if (length > 8) length = 8;
- 
-
+	unsigned char status = ReadStatus();
+	unsigned char address_load_buffer;
+	unsigned char length;
 
  
+	// check length
+	length = p_canmsg->dlc;
+	if (length > 8) length = 8;
  
-  // get offest address of next free tx buffer  TXREQ - Message Transmit Request bit 
+
+
+ 
+ 
+	// get offest address of next free tx buffer  TXREQ - Message Transmit Request bit 
 	//Buffer is currently pending transmission or Buffer is not currently pending transmission
 		
-  if ((status & TXB0CTRL_TXREQ) == 0) {                  ;
-	  address_load_buffer = LOADBUF0_TX_SH;
-	  } else if ((status & TXB1CTRL_TXREQ) == 0) {
-	  address_load_buffer =LOADBUF1_TX_SH;
-	  } else if ((status & TXB2CTRL_TXREQ) == 0) {
-	  address_load_buffer = LOADBUF2_TX_SH;
-	  } else {
-	  // no free transmit buffer
-	  return 0;
-  }
+	if ((status & TXB0CTRL_TXREQ) == 0) {                  ;
+		address_load_buffer = LOADBUF0_TX_SH;
+		} else if ((status & TXB1CTRL_TXREQ) == 0) {
+		address_load_buffer =LOADBUF1_TX_SH;
+		} else if ((status & TXB2CTRL_TXREQ) == 0) {
+		address_load_buffer = LOADBUF2_TX_SH;
+		} else {
+		// no free transmit buffer
+		return 0;
+	}
   
    
   
-  // set CS pin to low level..
-   SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
+	// set CS pin to low level..
+	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
   
-  ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, address_load_buffer);
+	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, address_load_buffer);
 
-   if (p_canmsg->flags.extended) {
-	   // All id divided into  
-	   //               hight standard id    low standard id(ext id)   hight ext id    low ext id
-	   //                  76543210         43210                     76543210        76543210  
-	   //                     >> 21         calculation 432xxx10         >>8             direct transive
-	   // transmit low standard id
-	   ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, p_canmsg->id >> 21);     // load standard id hight 29-21 =8 hight bit
-	   // transmit hight standard id which the must include bit4=0, bit2=0, bit3=1(massage id extended)
+	if (p_canmsg->flags.extended) {
+		// All id divided into  
+		//               hight standard id    low standard id(ext id)   hight ext id    low ext id
+		//                  76543210         43210                     76543210        76543210  
+		//                     >> 21         calculation 432xxx10         >>8             direct transive
+		// transmit low standard id
+		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, p_canmsg->id >> 21);     // load standard id hight 29-21 =8 hight bit
+		// transmit hight standard id which the must include bit4=0, bit2=0, bit3=1(massage id extended)
 	   
-	   ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, ((p_canmsg->id >> 13) & 0xe0) | ((p_canmsg->id >> 16) & 0x03) | 0x08);
-	   // transmit hight extended id
-	   ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, p_canmsg->id >> 8);
-	   // transmit low extended id
-	   ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, p_canmsg->id);
-	   } else {
-	    ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, p_canmsg->id >> 3);   // load standard id hight  11-3=8 bit
-	    ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, p_canmsg->id << 5);   // load standard id low  3=8-5 bit
-	    ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0);                   // load extended id hight
-	    ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0);                   // load extended id low
-   }
+		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, ((p_canmsg->id >> 13) & 0xe0) | ((p_canmsg->id >> 16) & 0x03) | 0x08);
+		// transmit hight extended id
+		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, p_canmsg->id >> 8);
+		// transmit low extended id
+		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, p_canmsg->id);
+		} else {
+		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, p_canmsg->id >> 3);   // load standard id hight  11-3=8 bit
+		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, p_canmsg->id << 5);   // load standard id low  3=8-5 bit
+		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0);                   // load extended id hight
+		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0);                   // load extended id low
+	}
    
-   // length and data
-   if (p_canmsg->flags.rtr) {				// RTR Remote Transmission Request (Frame request - recessive  Frame data -dominate)
-	    ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, p_canmsg->dlc | CAN_TXBxDLC_RTR);  // RTR fisical locate in TXBnDLC register in 6 bit. (this is a 0x40)
+	// length and data
+	if (p_canmsg->flags.rtr) {				// RTR Remote Transmission Request (Frame request - recessive  Frame data -dominate)
+		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, p_canmsg->dlc | CAN_TXBxDLC_RTR);  // RTR fisical locate in TXBnDLC register in 6 bit. (this is a 0x40)
 											// if 0 - data if  1- remoute  transmit request/ if true then setiings 1 in 6 bit 
-	   } else {
-	   ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, p_canmsg->dlc);
-	   unsigned char i;
-	   for (i = 0; i < length; i++) {
-		   ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, p_canmsg->data[i]);
-	   }
-   }
+		} else {
+		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, p_canmsg->dlc);
+		unsigned char i;
+		for (i = 0; i < length; i++) {
+			ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, p_canmsg->data[i]);
+		}
+	}
    
    
-   // release SS
-   UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
+	// release SS
+	UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
    
-   //_delay(1); ????????????????????????????????????????????????
+	//_delay(1); ????????????????????????????????????????????????
    
    
-    // Send massage in CAN in select RTS bit Request to Send
+	// Send massage in CAN in select RTS bit Request to Send
 	
 	// When Send via SPI the flags
 	//     ABTF -Message Aborted Flag bit       1- Massage was aborted
@@ -442,49 +442,40 @@ unsigned char ProtocolHandlerMcp2515::sendMessage(canmsg_t * p_canmsg) {
 	//     TXERR -Transmission Error Detected   1 = A bus error occurred while the message was being transmitted
 	//    will be cleared automatically
 	
-   // set CS pin to low lewel..
-   SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
+	// set CS pin to low lewel..
+	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
    
-   if (address_load_buffer == LOADBUF0_TX_SH) address_load_buffer = RTS_TXB0;
-   ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, address_load_buffer);
+	if (address_load_buffer == LOADBUF0_TX_SH) address_load_buffer = RTS_TXB0;
+	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, address_load_buffer);
    
-   // release SS
-   UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
-   // check if interrupt
-   unsigned char INTERRUPT_FLAGS = ReadRegister(CANINTF);
+	// release SS
+	UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
+	// check if interrupt
+	unsigned char INTERRUPT_FLAGS = ReadRegister(CANINTF);
    
-   // check empty tx buffers
+	// check empty tx buffers
    
-   while((INTERRUPT_FLAGS && CAN_TX0IF_BIT == 0) | (INTERRUPT_FLAGS && CAN_TX1IF_BIT == 0 )| (INTERRUPT_FLAGS && CAN_TX2IF_BIT == 0)) {
+	while((INTERRUPT_FLAGS && CAN_TX0IF_BIT == 0) | (INTERRUPT_FLAGS && CAN_TX1IF_BIT == 0 )| (INTERRUPT_FLAGS && CAN_TX2IF_BIT == 0)) {
 	   
-	  //  check error massage tx
-	  INTERRUPT_FLAGS = ReadRegister(CANINTF);
-	   if(INTERRUPT_FLAGS && CAN_MERRF_BIT ==1)  {
-		   BitModify(CANINTF,CAN_MERRF_BIT,0 );
-		   return 0;
+		//  check error massage tx
+		INTERRUPT_FLAGS = ReadRegister(CANINTF);
+		if(INTERRUPT_FLAGS && CAN_MERRF_BIT ==1)  {
+			BitModify(CANINTF,CAN_MERRF_BIT,0 );
+			return 0;
 		   
-	   }
+		}
 	   
-	  }
-	  // again check error massage
-	   if(INTERRUPT_FLAGS && CAN_MERRF_BIT ==1)  {
-		   BitModify(CANINTF,CAN_MERRF_BIT,0 );
-		   return 0;
-	   }
-	  // set flag interrupt when buffer is empty
-	  INTERRUPT_FLAGS = ReadRegister(CANINTF);
-	  if(INTERRUPT_FLAGS && CAN_TX0IF_BIT == 1) BitModify(CANINTF, CAN_TX0IF_BIT, 0);
-	  if(INTERRUPT_FLAGS && CAN_TX1IF_BIT == 1) BitModify(CANINTF, CAN_TX1IF_BIT, 0);
-	  if(INTERRUPT_FLAGS && CAN_TX2IF_BIT == 1) BitModify(CANINTF, CAN_TX2IF_BIT, 0);
+		}
+		// again check error massage
+		if(INTERRUPT_FLAGS && CAN_MERRF_BIT ==1)  {
+			BitModify(CANINTF,CAN_MERRF_BIT,0 );
+			return 0;
+		}
+		// set flag interrupt when buffer is empty
+		INTERRUPT_FLAGS = ReadRegister(CANINTF);
+		if(INTERRUPT_FLAGS && CAN_TX0IF_BIT == 1) BitModify(CANINTF, CAN_TX0IF_BIT, 0);
+		if(INTERRUPT_FLAGS && CAN_TX1IF_BIT == 1) BitModify(CANINTF, CAN_TX1IF_BIT, 0);
+		if(INTERRUPT_FLAGS && CAN_TX2IF_BIT == 1) BitModify(CANINTF, CAN_TX2IF_BIT, 0);
    
-   return 1;
-   
-   
-   
-}
-
-bool ProtocolHandlerMcp2515::writeMessage(canmsg_t * p_canmsg)
-{
-	//just a stub
-	return true;
+	return 1;
 }
