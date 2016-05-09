@@ -43,7 +43,7 @@ int main(void)
 	{
 		p_can_message_1->timestamp = 255;
 		p_can_message_2->timestamp = 255;
-		receive_status = can_interface.receiveMessage(p_can_message_1, p_can_message_2);
+		receive_status = can_interface.ReceiveMessage(p_can_message_1, p_can_message_2);
 		if(receive_status == 1)	
 		{
 			if (p_can_message_1->timestamp == 0)

@@ -31,13 +31,13 @@ class CanInterface
 	void init();
 	
 	// function for CAN controller with only 1 buffer
-	bool receiveMessage(canmsg_t * p_canmsg);
+	bool ReceiveMessage(canmsg_t * p_canmsg);
 	
 	// function for CAN controller with 2 buffers
-	bool receiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2);
+	bool ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2);
 	
 	// function for CAN controller with 4 buffers
-	bool receiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2, 
+	bool ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2, 
 						canmsg_t * p_canmsg_3, canmsg_t * p_canmsg_4);
 	
 	bool sendMessage(canmsg_t * p_canmsg);

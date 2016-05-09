@@ -22,19 +22,19 @@ bool CanInterface::sendMessage(canmsg_t * p_canmsg){
 	
 	return status_message;
 }
-bool CanInterface::receiveMessage(canmsg_t * p_canmsg) {
-	bool status_message = can_protocol_.receiveMessage(p_canmsg);
+bool CanInterface::ReceiveMessage(canmsg_t * p_canmsg) {
+	bool status_message = can_protocol_.ReceiveMessage(p_canmsg);
 	return status_message;
 }
 
-bool CanInterface::receiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2)
+bool CanInterface::ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2)
 {
-	bool status_message = can_protocol_.receiveMessage(p_canmsg_1, p_canmsg_2);
+	bool status_message = can_protocol_.ReceiveMessage(p_canmsg_1, p_canmsg_2);
 	return status_message;
 }
 
-bool CanInterface::receiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2, canmsg_t * p_canmsg_3, canmsg_t * p_canmsg_4)
+bool CanInterface::ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2, canmsg_t * p_canmsg_3, canmsg_t * p_canmsg_4)
 {
-	bool status_message = can_protocol_.receiveMessage(p_canmsg_1, p_canmsg_2, p_canmsg_3, p_canmsg_4);
+	bool status_message = can_protocol_.ReceiveMessage(p_canmsg_1, p_canmsg_2, p_canmsg_3, p_canmsg_4);
 	return status_message;
 }

@@ -42,21 +42,16 @@ private:
 		
 public:
 	
-	ProtocolHandlerMcp2515()
-	{
-		//CREATE_LOGGER(logger)
-		//MCP2515_CS
-		//LOG(logger, (char*)"MCP2515 Constructor.")	
-	};
+	ProtocolHandlerMcp2515() {};
 	~ProtocolHandlerMcp2515() {};
 	
 	unsigned char	Init(const unsigned char can_speed);
 	unsigned char mcp2515_read_status();
-	bool receiveMessage(canmsg_t * p_canmsg_1);
+	bool ReceiveMessage(canmsg_t * p_canmsg_1);
 	
-	bool receiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2);
+	bool ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2);
 	
-	bool receiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2,
+	bool ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2,
 						canmsg_t * p_canmsg_3, canmsg_t * p_canmsg_4);
 						
 	unsigned char sendMessage(canmsg_t * p_canmsg);

@@ -301,7 +301,7 @@ unsigned char ProtocolHandlerMcp2515::mcp2515_rx_status(){
 	
 }
 // 
-bool ProtocolHandlerMcp2515::receiveMessage(canmsg_t * p_canmsg_1)
+bool ProtocolHandlerMcp2515::ReceiveMessage(canmsg_t * p_canmsg_1)
 {
 	// just a stub, could be deleted after with appropriate virtual functions
 	// to do - should be added configuration of buffers to remove unnecessary functions
@@ -312,7 +312,7 @@ bool ProtocolHandlerMcp2515::receiveMessage(canmsg_t * p_canmsg_1)
 	
 	
 
-bool ProtocolHandlerMcp2515::receiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2)
+bool ProtocolHandlerMcp2515::ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2)
 {
 	CREATE_LOGGER(logger)
 	
@@ -350,7 +350,7 @@ bool ProtocolHandlerMcp2515::receiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_
 	return return_status;
 }
 
-bool ProtocolHandlerMcp2515::receiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2, canmsg_t * p_canmsg_3, canmsg_t * p_canmsg_4)
+bool ProtocolHandlerMcp2515::ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2, canmsg_t * p_canmsg_3, canmsg_t * p_canmsg_4)
 {
 	// just a stub, could be deleted after with appropriate virtual functions
 	// to do - should be added configuration of buffers to remove unnecessary functions

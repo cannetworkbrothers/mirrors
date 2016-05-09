@@ -46,13 +46,13 @@ public:
 	//returns true on success reception, false otherwise
 	
 	//function for CAN controller with 1 buffer only
-	virtual bool receiveMessage(canmsg_t * p_canmsg_1) = 0;
+	virtual bool ReceiveMessage(canmsg_t * p_canmsg_1) = 0;
 	
 	//function for CAN controller with 2 buffers
-	virtual bool receiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2) = 0;
+	virtual bool ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2) = 0;
 	
 	//function for CAN controller with 4 buffers
-	virtual bool receiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2, 
+	virtual bool ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2, 
 								canmsg_t * p_canmsg_3, canmsg_t * p_canmsg_4) = 0;
 	virtual unsigned char sendMessage(canmsg_t * p_canmsg) = 0;
 	
