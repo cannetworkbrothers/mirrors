@@ -32,6 +32,7 @@ class ProtocolHandlerMcp2515: public ProtocolHandler
 private:
 	void			BitModify(unsigned char address, unsigned char mask, unsigned char data);
 	void			InitCanBuffers(void);
+	unsigned char	IsMessageInRxBuffers();
 	unsigned char	ReadRegister(const unsigned char address);
 	void			ReadRxBuffer(unsigned char buffer_address, unsigned char status_rx, canmsg_t * p_canmsg);
 	void			Reset(void);
@@ -56,7 +57,6 @@ public:
 						
 	unsigned char sendMessage(canmsg_t * p_canmsg);
 	bool writeMessage(canmsg_t * p_canmsg);
-	unsigned char mcp2515_rx_status();
 	
 	
 	};

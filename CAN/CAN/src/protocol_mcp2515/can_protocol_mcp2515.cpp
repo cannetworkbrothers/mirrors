@@ -282,7 +282,7 @@ unsigned char ProtocolHandlerMcp2515::mcp2515_read_status() {
 	return status;
 }
 
-unsigned char ProtocolHandlerMcp2515::mcp2515_rx_status(){
+unsigned char ProtocolHandlerMcp2515::IsMessageInRxBuffers(){
 	
 	// function implementation command Rx status in SPI interface. This command return whether message any buffers and which format can message
 	
@@ -324,7 +324,7 @@ bool ProtocolHandlerMcp2515::ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_
 	LOG(logger, (char*) itoa(status, status_rx_value, 2))
 	#endif
 	
-	status = mcp2515_rx_status();
+	status = IsMessageInRxBuffers();
 	
 	#if ENABLE_LOG == ON
 	LOG(logger, (char*) "Status RX got:")
