@@ -348,25 +348,12 @@
 #define SETBIT             	0x01     // Set bit control
 #define CLEARBIT           	0x00     // Clear bit control
 
-
-// extended identifier bit
-
-#define EID0 0 
-#define EID1 1 
-#define EID2 2
-#define EID3 3 
-#define EID4 4 
-#define EID5 5
-#define EID6 6
-#define EID7 7
-#define EID8 8
-#define EID9 9 
-#define EID10 10 
-#define EID11 11
-#define EID12 12
-#define EID13 13
-#define EID14 14
-#define EID15 15 
+// constants to set up mask/filter
+#define MCP_SIDH        0
+#define MCP_SIDL        1
+#define MCP_EID8        2
+#define MCP_EID0        3
+#define MCP_TXB_EXIDE_M	0x08
 
 
 #endif /* MCP2515_H_ */

@@ -5,7 +5,7 @@
  *  Author: Brothers
  */ 
 
-
+#include <inttypes.h>
 #include "can_protocol_mcp2515.h"
 #include "math.h"
 #ifndef MAIN_H_
@@ -68,6 +68,86 @@ void ProtocolHandlerMcp2515::InitCanBuffers(void)
 	}
 	WriteRegister(RXB0CTRL, 0);
 	WriteRegister(RXB1CTRL, 0);
+}
+
+uint8_t ProtocolHandlerMcp2515::InitFiltering(MaskFilterProperties masks[], MaskFilterProperties filters[])
+{
+	uint8_t result = MCP_OK;
+	uint8_t retries = 0;
+	
+	CREATE_LOGGER(logger)
+	
+	// go to CONFIGURATION MODE
+	while (result != MCP_OK)
+	{
+		retries++;
+		result = SetMode(MODE_CONFIG);
+		if (retries == 5 && result != MCP_OK)
+		{
+			LOG(logger, (char*) "InitMask - failed to get config mode")
+			return result;
+		}
+	}
+	
+	// set MASKS registers bits
+	for (uint8_t i=0; i < sizeof(masks); i++)
+	{
+		
+		if (masks[i].id == 0)
+		{
+			WriteMaskFilterId(RXM0SIDH, masks[i].is_extened_id, masks[i].data);
+		}
+		else if (masks[i].id == 1)
+		{
+			WriteMaskFilterId(RXM1SIDH, masks[i].is_extened_id, masks[i].data);
+		} 
+		else
+		{
+			return MCP_FAIL;
+		}
+	}
+	
+	//set FILTERS registers bits
+	for (uint8_t i=0; i < sizeof(filters); i++)
+	{
+		switch (filters[i].id)
+		{
+			case 0:
+				WriteMaskFilterId(RXF0SIDH, filters[i].is_extened_id, filters[i].data);
+				break;
+			case 1:
+				WriteMaskFilterId(RXF1SIDH, filters[i].is_extened_id, filters[i].data);
+				break;
+			case 2:
+				WriteMaskFilterId(RXF1SIDH, filters[i].is_extened_id, filters[i].data);
+				break;
+			case 3:
+				WriteMaskFilterId(RXF1SIDH, filters[i].is_extened_id, filters[i].data);
+				break;
+			case 4:
+				WriteMaskFilterId(RXF1SIDH, filters[i].is_extened_id, filters[i].data);
+				break;
+			case 5:
+				WriteMaskFilterId(RXF1SIDH, filters[i].is_extened_id, filters[i].data);
+				break;
+			default:
+				result = MCP_FAIL;
+		}
+	}
+	
+	// return to NORMAL_MODE
+	retries = 0;
+	while (result != MCP_OK)
+	{
+		retries++;
+		result = SetMode(MODE_NORMAL);
+		if (retries == 5 && result != MCP_OK)
+		{
+			LOG(logger, (char*) "InitMask - failed to get normal mode")
+			return result;
+		}
+	}
+	return result;
 }
 
 unsigned char ProtocolHandlerMcp2515::IsMessageInRxBuffers(){
@@ -259,6 +339,36 @@ unsigned char ProtocolHandlerMcp2515::SetMode(const unsigned char desired_mode)
 	}
 }
 
+void ProtocolHandlerMcp2515::WriteMaskFilterId(const uint8_t address, const bool is_extended_id, const uint32_t id)
+{
+	uint16_t canid;
+	uint8_t id_registers[4];
+	
+	// get 2 lsb bytes of mask/filter
+	canid = (uint16_t)(id & 0x0FFFF);
+
+	if (is_extended_id == true)
+	{
+		id_registers[MCP_EID0] = (uint8_t) (canid & 0xFF);
+		id_registers[MCP_EID8] = (uint8_t) (canid >> 8);
+		
+		//get 2 msb bytes of mask/filter
+		canid = (uint16_t)(id >> 16);
+		id_registers[MCP_SIDL] = (uint8_t) (canid & 0x03);
+		id_registers[MCP_SIDL] += (uint8_t) ((canid & 0x1C) << 3);
+		id_registers[MCP_SIDL] |= MCP_TXB_EXIDE_M;
+		id_registers[MCP_SIDH] = (uint8_t) (canid >> 5 );
+	}
+	else
+	{
+		id_registers[MCP_SIDH] = (uint8_t) (canid >> 3 );
+		id_registers[MCP_SIDL] = (uint8_t) ((canid & 0x07 ) << 5);
+		id_registers[MCP_EID0] = 0;
+		id_registers[MCP_EID8] = 0;
+	}
+	WriteSequenceOfRegisters( address, id_registers, 4);
+}
+
 /**
  * \brief Set bit timing registers
  *
@@ -289,18 +399,40 @@ unsigned char ProtocolHandlerMcp2515::SetCanSpeed(unsigned char can_speed)
 
 void ProtocolHandlerMcp2515::WriteRegister(unsigned char address, unsigned char data)
 {
-	  // set CS pin to low level
-		SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
+	// set CS pin to low level
+	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
 		
-		SPI_TRANSMIT(WRITE);
-		SPI_TRANSMIT(address);
-		SPI_TRANSMIT(data);
+	SPI_TRANSMIT(WRITE);
+	SPI_TRANSMIT(address);
+	SPI_TRANSMIT(data);
 		
-		// release SS
-		UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
+	// release SS
+	UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
 }
 
-// 
+void ProtocolHandlerMcp2515::WriteSequenceOfRegisters(const uint8_t address, const uint8_t data[], const uint8_t n)
+{
+	// set CS pin to low level
+	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
+	
+	SPI_TRANSMIT(WRITE);
+	SPI_TRANSMIT(address);
+	// MCP2515 allows to write sequence of registers continuing sending SCK
+	for (uint8_t i=0; i < n; i++)
+	{
+		SPI_TRANSMIT(data[i]);
+	}
+	
+	// release SS
+	UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
+}
+
+
+/*
+ * PUBLIC FUNCTIONS
+ */
+
+
 bool ProtocolHandlerMcp2515::ReceiveMessage(canmsg_t * p_canmsg)
 {
 	// just a stub, could be deleted after with appropriate virtual functions

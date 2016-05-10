@@ -18,6 +18,7 @@
 #define SELECT_CAN_CHIP(port_name, pin_name)	port_name &= ~(1<<pin_name);
 #define UNSELECT_CAN_CHIP(port_name, pin_name)	port_name |= (1<<pin_name);
 
+#include <inttypes.h>
 #include <avr/io.h>
 #include "../protocol_handler/protocol_handler.h"
 #include "mcp2515.h"
@@ -27,11 +28,24 @@
 #define MCP2515_SS_0 PORTB &= ~(1 << PINB2 )
 #define MCP2515_SS_1 PORTB |= (1 << PINB2)
 
+struct MaskFilterProperties{
+	// 0 or 1 are possible values for MCP2515
+	uint8_t		id;
+	bool		is_extened_id;
+	// 32 bits mask/filter value for extended id
+	// for extended id range is 00 00 00 00 - 1F FF FF FF
+	// 16 bits mask/filter value for standard id
+	// for standard id range is 00 00 - 7 FF
+	uint32_t	data; 
+};
+
+
 class ProtocolHandlerMcp2515: public ProtocolHandler
 {
 private:
 	void			BitModify(unsigned char address, unsigned char mask, unsigned char data);
 	void			InitCanBuffers(void);
+	uint8_t			InitFiltering(MaskFilterProperties masks[], MaskFilterProperties filters[]);
 	unsigned char	IsMessageInRxBuffers();
 	unsigned char	ReadRegister(const unsigned char address);
 	void			ReadRxBuffer(unsigned char buffer_address, unsigned char status_rx, canmsg_t * p_canmsg);
@@ -40,7 +54,9 @@ private:
 	void			SetBitRateRegisters(unsigned char cnf1, unsigned char cnf2, unsigned char cnf3);
 	unsigned char	SetCanSpeed(unsigned char can_speed);
 	unsigned char	SetMode(const unsigned char desired_mode);
+	void			WriteMaskFilterId(const uint8_t address, const bool is_extended_id, const uint32_t id);
 	void			WriteRegister(unsigned char address, unsigned char data);
+	void			WriteSequenceOfRegisters(const uint8_t address, const uint8_t data[], const uint8_t n);
 		
 public:
 	
