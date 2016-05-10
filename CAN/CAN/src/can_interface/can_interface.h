@@ -29,6 +29,7 @@ class CanInterface
 	~CanInterface() {};
 		
 	void init();
+	void init_filtering();
 	
 	// function for CAN controller with only 1 buffer
 	bool ReceiveMessage(canmsg_t * p_canmsg);
@@ -41,6 +42,7 @@ class CanInterface
 						canmsg_t * p_canmsg_3, canmsg_t * p_canmsg_4);
 	
 	bool SendMessage(canmsg_t * p_canmsg);
+	
 		
 };
 

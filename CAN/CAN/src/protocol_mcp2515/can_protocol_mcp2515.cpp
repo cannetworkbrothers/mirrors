@@ -29,30 +29,25 @@
 void ProtocolHandlerMcp2515::BitModify(unsigned char address, unsigned char mask, unsigned char data) {
 	
 	CREATE_LOGGER(logger)
+	LOG(logger, (char*) "::BtMdf-start")
 	// set CS pin to low level
 	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
-	
-	
-	LOG(logger, (char*) "SPI: sending command bit_modify")
+
 	SPI_TRANSMIT(MCP2515_CMD_BIT_MODIFY);
-	LOG(logger, (char*) "SPI: command sent")
-	LOG(logger, (char*) "SPI: sending address")
 	SPI_TRANSMIT(address);
-	LOG(logger, (char*) "SPI: address sent")
-	LOG(logger, (char*) "SPI: sending mask")
 	SPI_TRANSMIT(mask);
-	LOG(logger, (char*) "SPI: mask sent")
-	LOG(logger, (char*) "SPI: sending data")
 	SPI_TRANSMIT(data);
-	LOG(logger, (char*) "SPI: data sent")
 	
 	// release CS
 	UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
+	
+	LOG(logger, (char*) "::BtMdf - end")
 	
 }
 
 void ProtocolHandlerMcp2515::InitCanBuffers(void)
 {
+	
 	unsigned char i, address_1, address_2, address_3; 
 	address_1 = TXB0CTRL;
 	address_2 = TXB1CTRL;
@@ -72,25 +67,27 @@ void ProtocolHandlerMcp2515::InitCanBuffers(void)
 
 uint8_t ProtocolHandlerMcp2515::InitFiltering(MaskFilterProperties masks[], MaskFilterProperties filters[])
 {
+	_delay_ms(50);
 	uint8_t result = MCP_OK;
 	uint8_t retries = 0;
 	
 	CREATE_LOGGER(logger)
 	
 	// go to CONFIGURATION MODE
-	while (result != MCP_OK)
+	while (GET_MODE != MODE_CONFIG)
 	{
 		retries++;
 		result = SetMode(MODE_CONFIG);
 		if (retries == 5 && result != MCP_OK)
 		{
-			LOG(logger, (char*) "InitMask - failed to get config mode")
+			LOG(logger, (char*) "::InitFiltering- CONFIG NOK")
 			return result;
 		}
 	}
 	
+	uint8_t i;
 	// set MASKS registers bits
-	for (uint8_t i=0; i < sizeof(masks); i++)
+	for (i=0; i < sizeof(masks); i++)
 	{
 		
 		if (masks[i].id == 0)
@@ -106,44 +103,52 @@ uint8_t ProtocolHandlerMcp2515::InitFiltering(MaskFilterProperties masks[], Mask
 			return MCP_FAIL;
 		}
 	}
+	LOG(logger, (char*) "::InitFiltering - masks OK")
 	
 	//set FILTERS registers bits
-	for (uint8_t i=0; i < sizeof(filters); i++)
+	for (i=0; i < sizeof(filters); i++)
 	{
 		switch (filters[i].id)
 		{
 			case 0:
 				WriteMaskFilterId(RXF0SIDH, filters[i].is_extened_id, filters[i].data);
+				LOG(logger, (char*) "::0::")
 				break;
 			case 1:
 				WriteMaskFilterId(RXF1SIDH, filters[i].is_extened_id, filters[i].data);
+				LOG(logger, (char*) "::1::")
 				break;
 			case 2:
-				WriteMaskFilterId(RXF1SIDH, filters[i].is_extened_id, filters[i].data);
+				WriteMaskFilterId(RXF2SIDH, filters[i].is_extened_id, filters[i].data);
+				LOG(logger, (char*) "::2::")
 				break;
 			case 3:
-				WriteMaskFilterId(RXF1SIDH, filters[i].is_extened_id, filters[i].data);
+				WriteMaskFilterId(RXF3SIDH, filters[i].is_extened_id, filters[i].data);
+				LOG(logger, (char*) "::3::")
 				break;
 			case 4:
-				WriteMaskFilterId(RXF1SIDH, filters[i].is_extened_id, filters[i].data);
+				WriteMaskFilterId(RXF4SIDH, filters[i].is_extened_id, filters[i].data);
+				LOG(logger, (char*) "::4::")
 				break;
 			case 5:
-				WriteMaskFilterId(RXF1SIDH, filters[i].is_extened_id, filters[i].data);
+				WriteMaskFilterId(RXF5SIDH, filters[i].is_extened_id, filters[i].data);
+				LOG(logger, (char*) "::5::")
 				break;
 			default:
 				result = MCP_FAIL;
 		}
 	}
+	LOG(logger, (char*) "::InitFiltering - filters OK")
 	
 	// return to NORMAL_MODE
 	retries = 0;
-	while (result != MCP_OK)
+	while (GET_MODE != MODE_NORMAL)
 	{
 		retries++;
 		result = SetMode(MODE_NORMAL);
 		if (retries == 5 && result != MCP_OK)
 		{
-			LOG(logger, (char*) "InitMask - failed to get normal mode")
+			LOG(logger, (char*) "::InitFiltering - NORMAL NOK")
 			return result;
 		}
 	}
@@ -173,7 +178,7 @@ unsigned char ProtocolHandlerMcp2515::Init(const unsigned char can_speed)
 	CREATE_LOGGER(logger);
 	unsigned char result = MCP_FAIL;
 	char retries = 0;
-	LOG(logger, (char*)"MCP2515.Init started...")
+	LOG(logger, (char*)"::Init started...")
 	Reset(); // after reset MCP2515 should be in CONFIGURATION MODE
 	
 	// any way check it, if fails perform 5 retries
@@ -183,11 +188,11 @@ unsigned char ProtocolHandlerMcp2515::Init(const unsigned char can_speed)
 		result = SetMode(MODE_CONFIG);
 		if (retries == 5 && result != MCP_OK)
 		{
-			LOG(logger, (char*) "CONFIG_MODE initialization fails")
+			LOG(logger, (char*) "CONFIG_MODE fails")
 			return MCP_FAIL;
 		}
 	}
-	LOG(logger, (char*) "CONFIG_MODE has initialized successfully")
+	LOG(logger, (char*) "::Init - CONFIG_MODE passed")
 	
 	InitCanBuffers();
 	WriteRegister(CANINTE, CAN_RX0IF_BIT | CAN_RX1IF_BIT);
@@ -205,11 +210,11 @@ unsigned char ProtocolHandlerMcp2515::Init(const unsigned char can_speed)
 		result = SetCanSpeed(can_speed);
 		if (retries == 5 && result != MCP_OK)
 		{
-			LOG(logger, (char*) "Init - failed to set CAN speed")
+			LOG(logger, (char*) "::Init - set up speed failed")
 			return result;
 		}
 	}
-	LOG(logger, (char*) "Init - successfully set upped CAN speed")
+	LOG(logger, (char*) "::Init - set up speed passed")
 	
 	result = MCP_FAIL;
 	retries = 0;
@@ -219,11 +224,11 @@ unsigned char ProtocolHandlerMcp2515::Init(const unsigned char can_speed)
 		result = SetMode(MODE_NORMAL);
 		if (retries == 5 && result != MCP_OK)
 		{
-			LOG(logger, (char*) "Init - failed to get NORMAL_MODE")
+			LOG(logger, (char*) "::Init - NORMAL_MODE failed")
 			return result;
 		}
 	}
-	LOG(logger, (char*) "Init - Initialization passed - NORMAL_MODE now")
+	LOG(logger, (char*) "::Init - NORMAL_MODE now")
 	return result;
 }
 
@@ -300,33 +305,24 @@ unsigned char ProtocolHandlerMcp2515::ReadStatus() {
 void ProtocolHandlerMcp2515::Reset(void)
 {
 	CREATE_LOGGER(logger)
-	LOG(logger, (char*)"MCP2515.Reset started ...")
+	LOG(logger, (char*)"::Reset started")
 	//to start SPI transfer need to push CS low level (chip select or slave select)
 	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
-	LOG(logger, (char*)"SPI is ready")
 	//send 8bit via SPI
 	SPI_TRANSMIT(RESET);
-	LOG(logger, (char*)"SPI transmit ended")
 	//to end SPI transfer need to push CS to high level (chip select or slave select)
 	UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
 	_delay_ms(10);
+	LOG(logger, (char*)"::Reset ended")
 	
 }
 
 unsigned char ProtocolHandlerMcp2515::SetMode(const unsigned char desired_mode)
 {
-	CREATE_LOGGER(logger)
 	unsigned char result;
-	LOG(logger, (char*) "CANCTRL before BitModify:")
-	char* canctrl_string = (char*) malloc(10);
-	result = ReadRegister(CANCTRL);
-	LOG(logger,(char*) itoa(result, canctrl_string, 2)) 
-	LOG(logger, (char*) itoa(desired_mode, canctrl_string,2 ))
+	
 	BitModify(CANCTRL, MODE_MASK, desired_mode);
-	LOG(logger, (char*) "CANCTRL after BitModify:")
 	result = ReadRegister(CANCTRL);
-	LOG(logger, (char*) itoa(result, canctrl_string, 2))
-	free(canctrl_string);
 	// apply 1110 0000 mask to received content
 	result &= MODE_MASK;
 	if (result == desired_mode)
@@ -399,6 +395,8 @@ unsigned char ProtocolHandlerMcp2515::SetCanSpeed(unsigned char can_speed)
 
 void ProtocolHandlerMcp2515::WriteRegister(unsigned char address, unsigned char data)
 {
+	CREATE_LOGGER(logger)
+	LOG(logger, (char*) "::WriteRegister - start")
 	// set CS pin to low level
 	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
 		
@@ -408,10 +406,14 @@ void ProtocolHandlerMcp2515::WriteRegister(unsigned char address, unsigned char 
 		
 	// release SS
 	UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
+	
+	LOG(logger, (char*) "::WriteRegister - end")
 }
 
 void ProtocolHandlerMcp2515::WriteSequenceOfRegisters(const uint8_t address, const uint8_t data[], const uint8_t n)
 {
+	CREATE_LOGGER(logger)
+	LOG(logger, (char*) "::WriteSequenceOfRegisters - start")
 	// set CS pin to low level
 	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
 	
@@ -425,6 +427,8 @@ void ProtocolHandlerMcp2515::WriteSequenceOfRegisters(const uint8_t address, con
 	
 	// release SS
 	UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
+	
+	LOG(logger, (char*) "::WriteSequenceOfRegisters - end")
 }
 
 
@@ -446,23 +450,10 @@ bool ProtocolHandlerMcp2515::ReceiveMessage(canmsg_t * p_canmsg)
 
 bool ProtocolHandlerMcp2515::ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2)
 {
-	CREATE_LOGGER(logger)
-	
 	unsigned char status =  0; //temporary for debug, combine with mcp2515_rx_status
 	bool return_status = false;
 	
-	#if ENABLE_LOG == ON
-	char* status_rx_value = (char*) malloc(10);
-	LOG(logger, (char*) itoa(status, status_rx_value, 2))
-	#endif
-	
 	status = IsMessageInRxBuffers();
-	
-	#if ENABLE_LOG == ON
-	LOG(logger, (char*) "Status RX got:")
-	LOG(logger, (char*) itoa(status, status_rx_value, 2))
-	free(status_rx_value);
-	#endif
 	
 	if( (status & MESSAGE_IN_RX0) == MESSAGE_IN_RX0) {
 		ReadRxBuffer(BUFFER_RX0, status, p_canmsg_1);
@@ -475,7 +466,6 @@ bool ProtocolHandlerMcp2515::ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_
 		return_status = true;
 	}
 	else {
-		LOG(logger, (char*) "No message received")
 		return return_status;
 	}
 	

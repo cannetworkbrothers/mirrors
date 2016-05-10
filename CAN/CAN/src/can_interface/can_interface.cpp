@@ -5,16 +5,36 @@
  *  Author: Igor
  */ 
 
+
 #include "can_interface.h"
 #ifndef MAIN_H_
 #include "../../main.hpp"
 #endif
+#include <util/delay.h>
 
 void CanInterface::init(){
 	CREATE_LOGGER(logger)
-	LOG(logger, (char*) "CanInterface.Init() started...")
+	LOG(logger, (char*) "Can.Init start")
 	can_protocol_.Init(CAN_5kBPS);
-	LOG(logger, (char*) "CanInterface.Init() ended.")
+	LOG(logger, (char*) "Can.Init end")
+}
+
+void CanInterface::init_filtering()
+{
+	CREATE_LOGGER(logger)
+	_delay_ms(100);
+	LOG(logger, (char*) "Can::init_fltrng start")
+	
+	MaskFilterProperties masks[] = {{0, false, 0x07ff}, {1, false, 0x07ff}};
+	MaskFilterProperties filters[] = {	{0, false, 0x1e6},
+	{1, false, 0x1e6},
+ 	{2, false, 0x1e6},
+ 	{3, false, 0x1e6},
+ 	{4, false, 0x1e6},
+ 	{5, false, 0x1e6}
+		};
+	can_protocol_.InitFiltering(masks, filters);
+	LOG(logger, (char*) "Can::init_fltrng end")
 }
 
 bool CanInterface::SendMessage(canmsg_t * p_canmsg){

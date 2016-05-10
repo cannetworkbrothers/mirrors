@@ -26,19 +26,15 @@ int main(void)
  	CanInterface can_interface;
 	LOG(logger, (char*) "Initialized can_interface!!!")
  	can_interface.init();
+	can_interface.init_filtering();
 	
 	LOG(logger, (char*) "END!!!")
 	// create buffer for CAN message
 	canmsg_t * p_can_message_1 = (canmsg_t*) malloc(sizeof(canmsg_t));
 	canmsg_t * p_can_message_2 = (canmsg_t*) malloc(sizeof(canmsg_t));
-	// initiate filed "data" for control changes 
-	//for(int message_number =0; message_number<=10; message_number++){
-		//for(int bit_data = 0; bit_data<=7; bit_data++){
-			//can_messages_data_array[message_number]->data[bit_data] = 2;
-		//}
-	//}
-	// Write CAN message in input buffer MCU
+		
 	bool receive_status = false;
+	LOG(logger, (char*) "Waiting for message...")
 	while (true)
 	{
 		p_can_message_1->timestamp = 255;
@@ -86,7 +82,7 @@ int main(void)
 			}
 		} 
 		else {
-			LOG(logger, (char*) "Not received CAN massage");
+			continue;
 		}
 	}
 	//char msg[] = "HelloIgor. ";

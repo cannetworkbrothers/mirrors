@@ -45,7 +45,6 @@ class ProtocolHandlerMcp2515: public ProtocolHandler
 private:
 	void			BitModify(unsigned char address, unsigned char mask, unsigned char data);
 	void			InitCanBuffers(void);
-	uint8_t			InitFiltering(MaskFilterProperties masks[], MaskFilterProperties filters[]);
 	unsigned char	IsMessageInRxBuffers();
 	unsigned char	ReadRegister(const unsigned char address);
 	void			ReadRxBuffer(unsigned char buffer_address, unsigned char status_rx, canmsg_t * p_canmsg);
@@ -64,6 +63,7 @@ public:
 	~ProtocolHandlerMcp2515() {};
 	
 	unsigned char	Init(const unsigned char can_speed);
+	uint8_t			InitFiltering(MaskFilterProperties masks[], MaskFilterProperties filters[]);
 	bool			ReceiveMessage(canmsg_t * p_canmsg);
 	bool			ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2);
 	bool			ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2,

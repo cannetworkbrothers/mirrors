@@ -17,9 +17,6 @@ class ControllerAtmega8 : public Controller
 	
 	ControllerAtmega8() {
 		
-		CREATE_LOGGER(logger)
-		LOG(logger, (char*)"atmega8.Constructor start...")
-		
 		// set SPI
 		
 		DDRB |= (1<<DDB2);  // port B2 - SS pin. For Master mode this must be OUT
@@ -41,7 +38,6 @@ class ControllerAtmega8 : public Controller
 		//SPCR |= (1<<SPIE); // enable interrupt SPI
 		//SPCR |= (1<<SPE);   // enable SPI
 	    //sei();   // global interrupt Enable
-		LOG(logger, (char*)"atmega8.Constructor end")
 		};
 	~ControllerAtmega8() {};
 	
