@@ -486,14 +486,9 @@ unsigned char ProtocolHandlerMcp2515::SendMessage(canmsg_t * p_canmsg) {
 	unsigned char address_load_buffer;
 	unsigned char length;
 
- 
 	// check length
 	length = p_canmsg->dlc;
 	if (length > 8) length = 8;
- 
-
-
- 
  
 	// get offest address of next free tx buffer  TXREQ - Message Transmit Request bit 
 	//Buffer is currently pending transmission or Buffer is not currently pending transmission
@@ -509,12 +504,10 @@ unsigned char ProtocolHandlerMcp2515::SendMessage(canmsg_t * p_canmsg) {
 		return 0;
 	}
   
-   
-  
 	// set CS pin to low level..
 	SELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
   
-	ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, address_load_buffer);
+	SPI_TRANSMIT(address_load_buffer);
 
 	if (p_canmsg->flags.extended) {
 		// All id divided into  
@@ -522,30 +515,31 @@ unsigned char ProtocolHandlerMcp2515::SendMessage(canmsg_t * p_canmsg) {
 		//                  76543210         43210                     76543210        76543210  
 		//                     >> 21         calculation 432xxx10         >>8             direct transive
 		// transmit low standard id
-		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, p_canmsg->id >> 21);     // load standard id hight 29-21 =8 hight bit
+		SPI_TRANSMIT(p_canmsg->id >> 21);     // load standard id hight 29-21 =8 hight bit
 		// transmit hight standard id which the must include bit4=0, bit2=0, bit3=1(massage id extended)
 	   
-		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, ((p_canmsg->id >> 13) & 0xe0) | ((p_canmsg->id >> 16) & 0x03) | 0x08);
+		SPI_TRANSMIT( ((p_canmsg->id >> 13) & 0xe0) | ((p_canmsg->id >> 16) & 0x03) | 0x08 );
 		// transmit hight extended id
-		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, p_canmsg->id >> 8);
+		SPI_TRANSMIT(p_canmsg->id >> 8);
 		// transmit low extended id
-		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, p_canmsg->id);
+		SPI_TRANSMIT(p_canmsg->id);
 		} else {
-		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, p_canmsg->id >> 3);   // load standard id hight  11-3=8 bit
-		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, p_canmsg->id << 5);   // load standard id low  3=8-5 bit
-		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0);                   // load extended id hight
-		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, 0);                   // load extended id low
+		SPI_TRANSMIT(p_canmsg->id >> 3);   // load standard id hight  11-3=8 bit
+		SPI_TRANSMIT(p_canmsg->id << 5);   // load standard id low  3=8-5 bit
+		SPI_TRANSMIT(0);                   // load extended id hight
+		SPI_TRANSMIT(0);                   // load extended id low
 	}
    
 	// length and data
 	if (p_canmsg->flags.rtr) {				// RTR Remote Transmission Request (Frame request - recessive  Frame data -dominate)
-		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, p_canmsg->dlc | CAN_TXBxDLC_RTR);  // RTR fisical locate in TXBnDLC register in 6 bit. (this is a 0x40)
+		// RTR fisical locate in TXBnDLC register in 6 bit. (this is a 0x40)
+		SPI_TRANSMIT(p_canmsg->dlc | CAN_TXBxDLC_RTR);
 											// if 0 - data if  1- remoute  transmit request/ if true then setiings 1 in 6 bit 
 		} else {
-		ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, p_canmsg->dlc);
+		SPI_TRANSMIT(p_canmsg->dlc);
 		unsigned char i;
 		for (i = 0; i < length; i++) {
-			ProtocolHandler::controller_spi_transmit_(ProtocolHandler::controller_p, p_canmsg->data[i]);
+			SPI_TRANSMIT(p_canmsg->data[i]);
 		}
 	}
    
@@ -553,7 +547,7 @@ unsigned char ProtocolHandlerMcp2515::SendMessage(canmsg_t * p_canmsg) {
 	// release SS
 	UNSELECT_CAN_CHIP(SPI_CS_PORT, SPI_CS_PIN)
    
-	//_delay(1); ????????????????????????????????????????????????
+	_delay_ms(5); 
    
    
 	// Send massage in CAN in select RTS bit Request to Send

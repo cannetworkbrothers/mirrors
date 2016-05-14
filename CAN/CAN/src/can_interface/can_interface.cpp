@@ -25,15 +25,15 @@ void CanInterface::init_filtering()
 	_delay_ms(100);
 	LOG(logger, (char*) "Can::init_fltrng start")
 	
-	MaskFilterProperties masks[] = {{0, false, 0x07ff}, {1, false, 0x07ff}};
-	MaskFilterProperties filters[] = {	{0, false, 0x1e6},
-	{1, false, 0x1e6},
- 	{2, false, 0x1e6},
- 	{3, false, 0x1e6},
- 	{4, false, 0x1e6},
- 	{5, false, 0x1e6}
-		};
-	can_protocol_.InitFiltering(masks, filters);
+// 	MaskFilterProperties masks[] = {{0, false, 0x07ff}, {1, false, 0x07ff}};
+// 	MaskFilterProperties filters[] = {	{0, false, 0x1e6},
+// 	{1, false, 0x1e6},
+//  	{2, false, 0x1e6},
+//  	{3, false, 0x1e6},
+//  	{4, false, 0x1e6},
+//  	{5, false, 0x1e6}
+// 		};
+// 	can_protocol_.InitFiltering(masks, filters);
 	LOG(logger, (char*) "Can::init_fltrng end")
 }
 
