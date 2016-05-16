@@ -46,9 +46,15 @@ int main(void)
 	p_can_message_1->timestamp = 100;
 		
 	bool send_status = false;
+	uint8_t  counter = 1;
 	while (true)
 	{
 		p_can_message_1->timestamp = 255;
+		if (counter == 10)
+		{
+			counter = 0;
+			p_can_message_1->id = 0xbf3c;
+		}
 		send_status = can_interface.SendMessage(p_can_message_1);
 		if(send_status == 1)	
 		{
@@ -58,6 +64,8 @@ int main(void)
 			LOG(logger, (char*) "Error occured.")
 		}
 		_delay_ms(1000);
+		p_can_message_1->id++;
+		counter++;
 	}
 	//char msg[] = "HelloIgor. ";
 	//char portb_value[9];
