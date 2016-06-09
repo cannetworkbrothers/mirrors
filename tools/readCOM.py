@@ -21,36 +21,53 @@ def writer(filename, n):
 			fout.write(str(1))
 
 def reader(n):
-	return [random.randint(1, n),random.randint(1, 10*n)] 
+	# 1st byte 0 0 0 0 S/E D L C
+	# 2nd byte is inverse of 1st byte
+	# n bytes of DATA
+	output = 0b0
+	rand = random.randint(0, 1)
+	if rand == 1:
+		output = output | 0b00001000
+	else:
+		output = output & 0b11110111
+	output = output | 0b00000111
+	items = []
+	items.append(output)
+	items.append(~output)
+	for x in range(1, 9):
+		items.append(random.randint(1, 3))
+	# print(items)
+	return items
+	# return [random.randint(1, n),random.randint(1, 10*n)] 
 
 def put_to_queue(q, v):
 	q.put(v)
 
 def main():
-	readCOM()
-	# test = []
-	# q = Queue()
-	# # s = set(test)
-	# s = []
+	# readCOM()
+	test = []
+	q = Queue()
+	# s = set(test)
+	s = []
 	# fout = open('test.txt', 'w')
-	# repeated = 0
-	# while True:
-	# 	# initial_t = time.time()
-	# 	read_value = reader(1000)
-	# 	put_to_queue(q, read_value)
-	# 	initial_t = time.time()
-	# 	if read_value not in s:
-	# 		# s.add(read_value)
-	# 		s.append(read_value)
-	# 	else:
-	# 		repeated = repeated + 1
-	# 		pass
-	# 	if len(s) == 10000:
-	# 		print(read_value, len(s), repeated)
-	# 		return 0
-	# 	print(round(time.time() - initial_t)*1000.0, read_value, len(s))
-		# print(read_value, len(s))
-
+	new = 0
+	initial_t = time.time()
+	# for x in range(1, 80000):
+	while True:
+		# initial_t = time.time()
+		read_value = reader(1000)
+		put_to_queue(q, read_value)
+		if read_value not in s:
+			# s.add(read_value)
+			s.append(read_value)
+			new = new + 1
+		if (time.time() - initial_t) < 3.0:
+			# print(x)
+			continue
+		else:
+			print(round(time.time() - initial_t), 'new ' + str(new), len(s))
+			initial_t = time.time()
+			new = 0
 
 if __name__ == "__main__":
 	main()
