@@ -9,6 +9,7 @@
 	#include "main.hpp"
 #endif
 #include "src/can_interface/can_interface.h"
+#include "src/usart/usart.hpp"
 #include <util/delay.h>
 #include <stdlib.h>
 
@@ -44,22 +45,15 @@ int main(void)
 		{
 			if (p_can_message_1->timestamp == 0)
 			{
-				LOG(logger, (char*) "Message in Rx0")
-				char* data_str = (char*) malloc(3);
-				
-				itoa(p_can_message_1->flags.extended, data_str, 10);
-				LOG(logger, (char*) data_str)
-				
-				itoa(p_can_message_1->id, data_str, 16);
-				LOG(logger, (char*) data_str)
-	
-				for (int i = 0; i < 8; ++i)
+				USART output;
+				if (p_can_message_1->flags.extended == 0)
 				{
-					/* code */
-					itoa(p_can_message_1->data[i], data_str, 16);
-					LOG(logger, (char*) data_str)
+					output.Write((char*) "IdentS");
+				} 
+				else
+				{
+					output.Write((char*) "IdentE");
 				}
-				free(data_str);
 			}
 			if (p_can_message_2->timestamp == 0)
 			{

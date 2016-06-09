@@ -32,7 +32,7 @@
 	#undef USART_SUPPORT
 #endif
 
-#if ENABLE_LOG == ON
+#if ENABLE_LOG == OFF
 	#include "src/logger/logger.hpp"
 #else
 	#undef ENABLE_LOG
