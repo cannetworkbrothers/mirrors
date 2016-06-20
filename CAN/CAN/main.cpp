@@ -45,34 +45,11 @@ int main(void)
 		{
 			if (p_can_message_1->timestamp == 0)
 			{
-				USART output;
-				if (p_can_message_1->flags.extended == 0)
-				{
-					output.Write((char*) "IdentS");
-				} 
-				else
-				{
-					output.Write((char*) "IdentE");
-				}
+				can_interface.SendMessageToPC(p_can_message_1);
 			}
 			if (p_can_message_2->timestamp == 0)
 			{
-				LOG(logger, (char*) "Message in Rx1")
-				char* data_str = (char*) malloc(3);
-				
-				itoa(p_can_message_2->flags.extended, data_str, 10);
-				LOG(logger, (char*) data_str)
-				
-				itoa(p_can_message_2->id, data_str, 16);
-				LOG(logger, (char*) data_str)
-				
-				for (int i = 0; i < 8; ++i)
-				{
-					/* code */
-					itoa(p_can_message_2->data[i], data_str, 16);
-					LOG(logger, (char*) data_str)
-				}
-				free(data_str);
+				can_interface.SendMessageToPC(p_can_message_2);
 			}
 		} 
 		else {

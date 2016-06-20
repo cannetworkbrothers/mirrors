@@ -35,6 +35,7 @@
 #if ENABLE_LOG == OFF
 	#include "src/logger/logger.hpp"
 #else
+	#include "src/logger/logger.hpp"
 	#undef ENABLE_LOG
 #endif
 
