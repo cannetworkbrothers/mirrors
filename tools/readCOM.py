@@ -21,7 +21,7 @@ def writer(filename, n):
 			fout.write(str(1))
 
 def reader(n):
-	# 1st byte 0 0 0 0 S/E D L C
+	# 1st byte 0 0 0 S/E D3 L2 C1 C0
 	# 2nd byte is inverse of 1st byte
 	# n bytes of DATA
 	output = 0b0
@@ -39,6 +39,8 @@ def reader(n):
 	# print(items)
 	return items
 	# return [random.randint(1, n),random.randint(1, 10*n)] 
+
+def receiver()
 
 def put_to_queue(q, v):
 	q.put(v)
