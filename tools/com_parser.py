@@ -99,6 +99,8 @@ def get_can_messages(input_str):
                     break
         input_sequence = []
     if can_message.can_id != "" and len(can_message.data) < 9:
+        if data_number != "":
+            can_message.data.append(data_number)
         can_bus.append(can_message)
     else:
         print("Detected wrong message: ", end="")
