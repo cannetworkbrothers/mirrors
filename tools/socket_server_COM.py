@@ -1,15 +1,10 @@
-#!/usr/bin/python           # This is server.py file
-
 import socket
 import time
 import com_parser
-import random #for client
 
-from threading import Thread
-
-TCP_IP = '127.0.0.1'
-TCP_PORT = 9191
-BUFFER_SIZE = 1024000 
+LOG_FILE_NAME = "socket.log"
+CAN_BUS_LOG_FILE_NAME = "can_bus.log"
+NEW_CAN_MESSAGES_FILE_NAME = "last_can_bus.log"
 
 class SocketServer(object):
     """docstring for SocketServer"""
@@ -24,7 +19,7 @@ class SocketServer(object):
         self.sock.listen(1)
 
 
-    def print_can_mesasges(self, file_obj, can_array):
+    def print_can_mesasges_to_file(self, file_obj, can_array):
         for can_item in can_array:
             if can_item.is_extended == 0:
                 file_obj.write("Stand.: ")
@@ -37,8 +32,11 @@ class SocketServer(object):
             file_obj.write("\n")
 
     def start_forever(self, buffer_size):
-        log_file = open("socket.log", "w")
-        while True:    
+        log_file = open(LOG_FILE_NAME, "w")
+        can_messages_file = open(CAN_BUS_LOG_FILE_NAME, "w")
+        new_can_messages_file = open(NEW_CAN_MESSAGES_FILE_NAME, "w")
+        period_of_listening = 0
+        while True:
             connection, address = self.sock.accept()
 
             print('Connection address:', address)
@@ -124,7 +122,15 @@ class SocketServer(object):
                             " new messages were found during last 3 seconds")
                         log_file.write(str(new_found) + \
                             " new messages were found during last 3 seconds")
-                        self.print_can_mesasges(log_file, all_messages_of_last_period)
+                        self.print_can_mesasges_to_file(log_file, all_messages_of_last_period)
+                        can_messages_file.close()
+                        open(CAN_BUS_LOG_FILE_NAME,"w").close()
+                        can_messages_file = open(CAN_BUS_LOG_FILE_NAME, "w")
+                        self.print_can_mesasges_to_file(can_messages_file, can_bus)
+                        new_can_messages_file.write("Period: " + str(period_of_listening) + "\n\n")
+                        self.print_can_mesasges_to_file(new_can_messages_file, all_messages_of_last_period)
+                        new_can_messages_file.write("\n\n\n")
+                        period_of_listening += 1
                         all_messages_of_last_period = []
                         new_messages_of_last_period = []
                         is_new_period = True
@@ -146,7 +152,15 @@ class SocketServer(object):
                                 +  ") were found during last 3 seconds")
                             for can_msg in new_messages_of_last_period:
                                 can_bus.append(can_msg)
-                            self.print_can_mesasges(log_file, new_messages_of_last_period)
+                            self.print_can_mesasges_to_file(log_file, new_messages_of_last_period)
+                            can_messages_file.close()
+                            open(CAN_BUS_LOG_FILE_NAME,"w").close()
+                            can_messages_file = open(CAN_BUS_LOG_FILE_NAME, "w")
+                            self.print_can_mesasges_to_file(can_messages_file, can_bus)
+                            new_can_messages_file.write("Period: " + str(period_of_listening) + "\n\n")
+                            self.print_can_mesasges_to_file(new_can_messages_file, new_messages_of_last_period)
+                            new_can_messages_file.write("\n\n\n")
+                            period_of_listening += 1
                         else:
                             print("No new messages during last 3 seconds")
                         all_messages_of_last_period = []
@@ -156,59 +170,10 @@ class SocketServer(object):
                 # print("received data:", data)
                 # connection.send(data)
             log_file.close()
-            can_messages_file = open("can_bus.log", "w")
-            self.print_can_mesasges(can_messages_file, can_bus)
             can_messages_file.close()
+            open(CAN_BUS_LOG_FILE_NAME,"w").close()
+            can_messages_file = open(CAN_BUS_LOG_FILE_NAME, "w")
+            self.print_can_mesasges_to_file(can_messages_file, can_bus)
+            can_messages_file.close()
+            new_can_messages_file.close()
             connection.close()
-
-class SocketClient(Thread):
-    """docstring for SocketClient"""
-    def __init__(self):
-        Thread.__init__(self)
-
-    def run(self):
-        client_sock = socket.socket()         # Create a socket object
-        port = 9191                # Reserve a port for your service.
-
-        can_bus_messages = []
-        for msg_number in range(1, 501):
-        # while True
-            out = ""
-            can_id = random.randint(0, 0x1fffffff)
-            if can_id > 0x7ff:
-                out = "W"
-            else:
-                out = "S"
-            can_id = str(hex(can_id))[2::]
-            out = out + can_id
-            data_byte = []
-            for iterator in range(0, 8):
-                temp_intereger = random.randint(0, 0xff)
-                data_byte.append(str(hex(temp_intereger))[2::])
-                out = out + "D" + data_byte[iterator]
-            can_bus_messages.append(out)
-            print((msg_number -1), out)
-        start = time.time()
-        client_sock.connect(('localhost', port))
-        index = 0
-        while True:
-            # s.send(b'W5eaffD0eaD1aeD20D30D42D5a0D6b1D7')
-            if index > 499:
-                index = 0
-            time.sleep(0.05)
-            client_sock.send(bytearray(str.encode(can_bus_messages[index])))
-            index += 1 
-            # print(time.time() - start)
-            if (time.time() - start) > 60:
-                break
-            # print(s.recv(20))
-        client_sock.close() # Close the socket when done
-
-
-server_com = SocketServer(TCP_IP, TCP_PORT)
-
-clientThread = SocketClient()
-clientThread.setDaemon(True)
-clientThread.start()
-
-server_com.start_forever(BUFFER_SIZE)
