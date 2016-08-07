@@ -9,7 +9,7 @@ from threading import Thread
 
 TCP_IP = '127.0.0.1'
 TCP_PORT = 9191
-BUFFER_SIZE = 10240 
+BUFFER_SIZE = 1024000 
 
 class SocketServer(object):
     """docstring for SocketServer"""
@@ -51,12 +51,48 @@ class SocketServer(object):
             start_time = time.time()
             while True:
                 data = connection.recv(buffer_size)
-                print("received data:", data)
+                # print("received data:", data)
                 log_file.write(str("received data: ") + str(data, "cp1252") + "\n")
                 if not data: 
                     break
                 just_received_messages = com_parser.get_can_messages(\
                     data.decode('cp1252').encode('utf-8').decode('utf-8'))
+                # # debug
+                # print("received")
+                # for x in just_received_messages:
+                #     print(x.can_id, end="")
+                #     for y in x.data:
+                #         print(y, end="")
+                #     print("")
+                # # debug
+                length_of_just_received = len(just_received_messages)
+                is_array_changed = False
+                if length_of_just_received > 1:
+                    while True:
+                        length_of_just_received = len(just_received_messages)
+                        for key, value in enumerate(just_received_messages):
+                            if (length_of_just_received - 1) > 1:
+                                for index in range(key + 1, length_of_just_received):
+                                    if  value.can_id == just_received_messages[index].can_id and \
+                                        value.data == just_received_messages[index].data:
+                                        # print("deleted")
+                                        del just_received_messages[key]
+                                        is_array_changed = True
+                                        break
+                            if is_array_changed is True:
+                                break
+                        if is_array_changed is True:
+                            is_array_changed = False
+                        else:
+                            break
+                # # debug
+                # print("duplicates removed: ")
+                # for x in just_received_messages:
+                #     print(x.can_id, end="")
+                #     for y in x.data:
+                #         print(y, end="")
+                #     print("")
+                # # debug
                 for msg in just_received_messages:
                     # print("just_received_messages: " + x.can_id)
                     log_file.write("just_received_messages: " + msg.can_id + "\n")
@@ -68,8 +104,8 @@ class SocketServer(object):
                     all_messages_of_last_period = just_received_messages
                     is_new_period = False
                 else:
-                    is_current_present = False
                     for item in just_received_messages:
+                        is_current_present = False
                         for item_last_period in all_messages_of_last_period:
                             if  item.can_id == item_last_period.can_id and \
                                 item.data == item_last_period.data:
@@ -79,12 +115,15 @@ class SocketServer(object):
                             all_messages_of_last_period.append(item)
                 if (time.time() - start_time) > 3:
                     start_time = time.time()
-                    print("Length of last messages: " + str(len(all_messages_of_last_period)))
+                    print("Were received: " + str(len(all_messages_of_last_period)))
                     if is_first_run:
                         is_first_run = False
                         can_bus = all_messages_of_last_period
-                        print("New messages were found during last 3 seconds")
-                        log_file.write("New messages were found during last 3 seconds")
+                        new_found = len(all_messages_of_last_period)
+                        print(str(new_found) + \
+                            " new messages were found during last 3 seconds")
+                        log_file.write(str(new_found) + \
+                            " new messages were found during last 3 seconds")
                         self.print_can_mesasges(log_file, all_messages_of_last_period)
                         all_messages_of_last_period = []
                         new_messages_of_last_period = []
@@ -100,8 +139,9 @@ class SocketServer(object):
                             if is_current_present is False:
                                 new_messages_of_last_period.append(item_last)
                         if new_messages_of_last_period != []:
-                            print("New messages(" + str(len(new_messages_of_last_period))\
-                                +  ") were found during last 3 seconds")
+                            new_found = len(new_messages_of_last_period)
+                            print(str(new_found) + \
+                                " new messages were found during last 3 seconds")
                             log_file.write("New messages(" + str(len(new_messages_of_last_period))\
                                 +  ") were found during last 3 seconds")
                             for can_msg in new_messages_of_last_period:
@@ -150,12 +190,16 @@ class SocketClient(Thread):
             print((msg_number -1), out)
         start = time.time()
         client_sock.connect(('localhost', port))
+        index = 0
         while True:
             # s.send(b'W5eaffD0eaD1aeD20D30D42D5a0D6b1D7')
-            # time.sleep(0.01)
-            client_sock.send(bytearray(str.encode(can_bus_messages[random.randint(0, 499)])))
-            print(time.time() - start)
-            if (time.time() - start) > 10:
+            if index > 499:
+                index = 0
+            time.sleep(0.05)
+            client_sock.send(bytearray(str.encode(can_bus_messages[index])))
+            index += 1 
+            # print(time.time() - start)
+            if (time.time() - start) > 60:
                 break
             # print(s.recv(20))
         client_sock.close() # Close the socket when done

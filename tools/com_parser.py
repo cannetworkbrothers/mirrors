@@ -56,6 +56,7 @@ def get_can_messages(input_str):
         if len(input_sequence) == 0:
             break
         iterator = 0
+        dlc = 0
         for char in input_sequence:
             iterator += 1
             if is_id_flag is True:
@@ -64,6 +65,7 @@ def get_can_messages(input_str):
                     continue
                 elif char == 'D':
                     is_id_flag = False
+                    dlc += 1
                     continue
                 else:
                     # previous sequence is wrong
@@ -75,6 +77,7 @@ def get_can_messages(input_str):
                     data_number += char
                     continue
                 elif char == 'D':
+                    dlc += 1
                     can_message.data.append(data_number)
                     data_number = ""
                     continue
@@ -101,6 +104,8 @@ def get_can_messages(input_str):
     if can_message.can_id != "" and len(can_message.data) < 9:
         if data_number != "":
             can_message.data.append(data_number)
+        if dlc < 8:
+            print(input_str)
         can_bus.append(can_message)
     else:
         print("Detected wrong message: ", end="")
