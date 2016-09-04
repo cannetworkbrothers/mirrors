@@ -10,8 +10,11 @@
 #ifndef MAIN_H_
 #include "../../main.hpp"
 #endif
-#include <util/delay.h>
 #include "../usart/usart.hpp"
+#include <util/delay.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 void CanInterface::init(){
 	CREATE_LOGGER(logger)
@@ -46,53 +49,66 @@ bool CanInterface::SendMessageToBus(canmsg_t * p_canmsg){
 
 bool CanInterface::SendMessageToPC(canmsg_t * p_canmsg)
 {
-	// 0 0 0 1 1 1 1 1
-	// x x x | | | | |
-	//       | | | | |
-	//       | | | | --- DLC.0 
-	//       | | | ----- DLC.1
-	//       | | ------- DLC.2
-	//       | --------- DLC.3
-	//       ----------- Identifier 0 - standard, 1 - extended
-	
-	// start frame repeats twice, 2nd is inverse of 1st
-	#define START_FRAME 2
-	#define ID_FRAME	2
-	#define IS_EXTENDED	4
 	
 	USART transmiter;
-	uint8_t frame = 0x00;
 	
+	//calculate number of chars in result string
+	uint8_t string_to_send_length = GetNumberOfDigits(p_canmsg->id, 16);
+	
+	char *id_prefix = (char*) malloc(2);
 	if (p_canmsg->flags.extended == 1)
 	{
-		frame |= (1<<IS_EXTENDED);
-	}
-	
-	if (p_canmsg->dlc > 8)
-	{
-		return false;
+		id_prefix = (char*) "W";
 	}
 	else
 	{
-		frame |= p_canmsg->dlc;
+		id_prefix = (char*) "S";
+	}
+	char *id_itself = (char*) malloc(string_to_send_length+1);
+	itoa(p_canmsg->id, id_itself, 16);
+	
+	char *id = (char *) malloc(strlen(id_prefix)+strlen(id_itself)+1);
+	strcpy(id, id_prefix);
+	strcat(id, id_itself);
+	free(id_prefix);
+	free(id_itself);
+	
+	for(uint8_t i = 0; i < p_canmsg->dlc; i++){
+		string_to_send_length += GetNumberOfDigits(p_canmsg->data[i], 16);
 	}
 	
-	transmiter.SendFrame(frame);
-	transmiter.SendFrame(~frame);
-	transmiter.SendFrame((uint8_t) p_canmsg->id); // send id frame 0
-	transmiter.SendFrame((uint8_t) (p_canmsg->id >> 8) ); // send id frame 1
+	//plus W/S, plus zero end
+	string_to_send_length += 2;
 	
-	if (p_canmsg->flags.extended == 1)
-	{
-		transmiter.SendFrame((uint8_t) (p_canmsg->id >> 16) ); // send id frame 2
-		transmiter.SendFrame((uint8_t) (p_canmsg->id >> 24) ); // send id frame 3
-	}
+	//plus number of "D"
+	string_to_send_length += p_canmsg->dlc;
+	
+	char *can_msg_str = (char*) malloc(string_to_send_length);
+	strcpy(can_msg_str, id);
+	free(id);
 	
 	for (uint8_t i = 0; i < p_canmsg->dlc; i++)
 	{
-		transmiter.SendFrame(p_canmsg->data[i]);
+		char * data = (char *) malloc((GetNumberOfDigits(p_canmsg->data[i], 16) + 1));
+		itoa(p_canmsg->data[i], data, 16);
+		strcat(can_msg_str, "D");
+		strcat(can_msg_str, data);
+		free(data);
 	}
+	transmiter.Write(can_msg_str);
+	free(can_msg_str);
 	return true;
+}
+
+uint8_t CanInterface::GetNumberOfDigits(uint8_t number, uint8_t radix)
+{
+	uint8_t count = 0;
+	while(number > 0){
+		number /= radix;
+		count++;
+	}
+	
+	return count;
 }
 
 bool CanInterface::ReceiveMessage(canmsg_t * p_canmsg) {

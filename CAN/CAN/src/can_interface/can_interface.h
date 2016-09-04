@@ -43,8 +43,10 @@ class CanInterface
 	
 	bool SendMessageToBus(canmsg_t * p_canmsg);
 	
-	bool SendMessageToPC(canmsg_t * p_canmsg);	
-		
+	bool SendMessageToPC(canmsg_t * p_canmsg);
+	
+	private:
+	uint8_t GetNumberOfDigits(uint8_t number, uint8_t radix);
 };
 
 
