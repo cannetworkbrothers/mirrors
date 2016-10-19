@@ -9,6 +9,7 @@
 	#include "main.hpp"
 #endif
 #include "src/can_interface/can_interface.h"
+#include "src/usart/usart.hpp"
 #include <util/delay.h>
 #include <stdlib.h>
 
@@ -24,66 +25,59 @@ int main(void)
 
  	//canmsg_t can_message_buffer;
  	CanInterface can_interface;
-	LOG(logger, (char*) "Initialized can_interface!!!")
+	LOG(logger, (char*) "Initialized CanInterface!!!")
  	can_interface.init();
-	can_interface.init_filtering();
+	//can_interface.init_filtering();
 	
-	LOG(logger, (char*) "END!!!")
 	// create buffer for CAN message
 	canmsg_t * p_can_message_1 = (canmsg_t*) malloc(sizeof(canmsg_t));
-	canmsg_t * p_can_message_2 = (canmsg_t*) malloc(sizeof(canmsg_t));
+	
+	p_can_message_1->id = 0xbf3c;
+	p_can_message_1->flags.rtr = 0;
+	p_can_message_1->flags.extended = 1;
+	p_can_message_1->data[0] = 0x0;
+	p_can_message_1->data[1] = 0x80;
+	p_can_message_1->data[2] = 0xae;
+	p_can_message_1->data[3] = 0xff;
+	p_can_message_1->data[4] = 0;
+	p_can_message_1->data[5] = 0;
+	p_can_message_1->data[6] = 0;
+	p_can_message_1->data[7] = 0;
+	p_can_message_1->dlc = 8;
+	p_can_message_1->timestamp = 100;
 		
-	bool receive_status = false;
-	LOG(logger, (char*) "Waiting for message...")
+	bool send_status = false;
+	uint8_t  counter = 1;
 	while (true)
 	{
 		p_can_message_1->timestamp = 255;
-		p_can_message_2->timestamp = 255;
-		receive_status = can_interface.ReceiveMessage(p_can_message_1, p_can_message_2);
-		if(receive_status == 1)	
+		if (counter == 10)
 		{
+<<<<<<< HEAD
 			if (p_can_message_1->timestamp == 0)
 			{
-				LOG(logger, (char*) "Message in Rx0")
-				char* data_str = (char*) malloc(3);
-				
-				itoa(p_can_message_1->flags.extended, data_str, 10);
-				LOG(logger, (char*) data_str)
-				
-				itoa(p_can_message_1->id, data_str, 16);
-				LOG(logger, (char*) data_str)
-	
-				for (int i = 0; i < 8; ++i)
-				{
-					/* code */
-					itoa(p_can_message_1->data[i], data_str, 16);
-					LOG(logger, (char*) data_str)
-				}
-				free(data_str);
+				can_interface.SendMessageToPC(p_can_message_1);
 			}
 			if (p_can_message_2->timestamp == 0)
 			{
-				LOG(logger, (char*) "Message in Rx1")
-				char* data_str = (char*) malloc(3);
-				
-				itoa(p_can_message_2->flags.extended, data_str, 10);
-				LOG(logger, (char*) data_str)
-				
-				itoa(p_can_message_2->id, data_str, 16);
-				LOG(logger, (char*) data_str)
-				
-				for (int i = 0; i < 8; ++i)
-				{
-					/* code */
-					itoa(p_can_message_2->data[i], data_str, 16);
-					LOG(logger, (char*) data_str)
-				}
-				free(data_str);
+				can_interface.SendMessageToPC(p_can_message_2);
 			}
+=======
+			counter = 0;
+			p_can_message_1->id = 0xbf3c;
+		}
+		send_status = can_interface.SendMessage(p_can_message_1);
+		if(send_status == 1)	
+		{
+			LOG(logger, (char*) "Sent!!!")
+>>>>>>> transmit_CAN_message
 		} 
 		else {
-			continue;
+			LOG(logger, (char*) "Error occured.")
 		}
+		_delay_ms(1000);
+		p_can_message_1->id++;
+		counter++;
 	}
 	//char msg[] = "HelloIgor. ";
 	//char portb_value[9];
