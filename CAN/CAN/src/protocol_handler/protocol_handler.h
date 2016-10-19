@@ -10,6 +10,7 @@
 //Function pointer calls controller_spi_transmit that takes a char and returns a char
 typedef unsigned char (*callback_spi_transmit_ptr)(void*, unsigned char);
 
+// Main struct for storing CAN message
 typedef struct
 {
 	unsigned long id;				// identifier (11 or 29 bit)
@@ -22,6 +23,13 @@ typedef struct
 	unsigned char data[8];			// payload data
 	unsigned short timestamp;		// timestamp
 } canmsg_t;
+
+// struct for storing state of rx buffers
+typedef struct
+{
+	bool rx0_status; // if rx0 buffer contains message
+	bool rx1_status; // if rx1 buffer contains message
+} rx_buffers_status;
 
 class ProtocolHandler
 {
@@ -46,13 +54,13 @@ public:
 	//returns true on success reception, false otherwise
 	
 	//function for CAN controller with 1 buffer only
-	virtual bool ReceiveMessage(canmsg_t * p_canmsg) = 0;
+	virtual bool				ReceiveMessage(canmsg_t * p_canmsg) = 0;
 	
 	//function for CAN controller with 2 buffers
-	virtual bool ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2) = 0;
+	virtual rx_buffers_status	ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2) = 0;
 	
 	//function for CAN controller with 4 buffers
-	virtual bool ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2, 
-								canmsg_t * p_canmsg_3, canmsg_t * p_canmsg_4) = 0;
+	virtual bool				ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2, 
+									canmsg_t * p_canmsg_3, canmsg_t * p_canmsg_4) = 0;
 	virtual unsigned char SendMessage(canmsg_t * p_canmsg) = 0;
 };

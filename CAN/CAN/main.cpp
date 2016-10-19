@@ -28,81 +28,51 @@ int main(void)
  	can_interface.init();
 	can_interface.init_filtering();
 	
-	LOG(logger, (char*) "END!!!")
 	// create buffer for CAN message
 	canmsg_t * p_can_message_1 = (canmsg_t*) malloc(sizeof(canmsg_t));
 	canmsg_t * p_can_message_2 = (canmsg_t*) malloc(sizeof(canmsg_t));
 		
-	bool receive_status = false;
+	rx_buffers_status receive_status = {};
 	LOG(logger, (char*) "Waiting for message...")
 	while (true)
 	{
-		p_can_message_1->timestamp = 255;
-		p_can_message_2->timestamp = 255;
 		receive_status = can_interface.ReceiveMessage(p_can_message_1, p_can_message_2);
-		if(receive_status == 1)	
-		{
-			if (p_can_message_1->timestamp == 0)
-			{
-				LOG(logger, (char*) "Message in Rx0")
-				char* data_str = (char*) malloc(3);
+		if(receive_status.rx0_status == true){
+			LOG(logger, (char*) "Message in Rx0")
+			char* data_str = (char*) malloc(3);
 				
-				itoa(p_can_message_1->flags.extended, data_str, 10);
-				LOG(logger, (char*) data_str)
+			itoa(p_can_message_1->flags.extended, data_str, 10);
+			LOG(logger, (char*) data_str)
 				
-				itoa(p_can_message_1->id, data_str, 16);
-				LOG(logger, (char*) data_str)
+			itoa(p_can_message_1->id, data_str, 16);
+			LOG(logger, (char*) data_str)
 	
-				for (int i = 0; i < 8; ++i)
-				{
-					/* code */
-					itoa(p_can_message_1->data[i], data_str, 16);
-					LOG(logger, (char*) data_str)
-				}
-				free(data_str);
-			}
-			if (p_can_message_2->timestamp == 0)
+			for (int i = 0; i < 8; ++i)
 			{
-				LOG(logger, (char*) "Message in Rx1")
-				char* data_str = (char*) malloc(3);
-				
-				itoa(p_can_message_2->flags.extended, data_str, 10);
+				/* code */
+				itoa(p_can_message_1->data[i], data_str, 16);
 				LOG(logger, (char*) data_str)
-				
-				itoa(p_can_message_2->id, data_str, 16);
-				LOG(logger, (char*) data_str)
-				
-				for (int i = 0; i < 8; ++i)
-				{
-					/* code */
-					itoa(p_can_message_2->data[i], data_str, 16);
-					LOG(logger, (char*) data_str)
-				}
-				free(data_str);
 			}
-		} 
-		else {
-			continue;
+			free(data_str);
 		}
-	}
-	//char msg[] = "HelloIgor. ";
-	//char portb_value[9];
-// 	char* out_message = (char*) malloc(30);
-	//CREATE_LOGGER(logger)
-    
-	//Main loop
-    //while (1) 
-    //{
-		//itoa(PORTB, portb_value, 2);
-		//char* out_message = (char*) malloc(30);
-		//strmerge(msg, portb_value, out_message);
-		////can_interface.receiveMessage(&can_message_buffer);
-		//LOG(logger, out_message)
-		///*logger_var.WriteLine(msg);*/
-		//_delay_ms(1000);
-		////invert PB1
-		//PORTB ^= 0b00000010;
-		//free(out_message);
-    //}
+		if (receive_status.rx1_status == true){
+			LOG(logger, (char*) "Message in Rx1")
+			char* data_str = (char*) malloc(3);
+				
+			itoa(p_can_message_2->flags.extended, data_str, 10);
+			LOG(logger, (char*) data_str)
+				
+			itoa(p_can_message_2->id, data_str, 16);
+			LOG(logger, (char*) data_str)
+				
+			for (int i = 0; i < 8; ++i)
+			{
+				/* code */
+				itoa(p_can_message_2->data[i], data_str, 16);
+				LOG(logger, (char*) data_str)
+			}
+			free(data_str);
+		}
+	} 
 }
 

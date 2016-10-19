@@ -35,7 +35,7 @@ class CanInterface
 	bool ReceiveMessage(canmsg_t * p_canmsg);
 	
 	// function for CAN controller with 2 buffers
-	bool ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2);
+	rx_buffers_status ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2);
 	
 	// function for CAN controller with 4 buffers
 	bool ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2, 

@@ -116,9 +116,9 @@ bool CanInterface::ReceiveMessage(canmsg_t * p_canmsg) {
 	return status_message;
 }
 
-bool CanInterface::ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2)
+rx_buffers_status CanInterface::ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2)
 {
-	bool status_message = can_protocol_.ReceiveMessage(p_canmsg_1, p_canmsg_2);
+	rx_buffers_status status_message = can_protocol_.ReceiveMessage(p_canmsg_1, p_canmsg_2);
 	return status_message;
 }
 

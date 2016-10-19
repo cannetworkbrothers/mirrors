@@ -444,32 +444,28 @@ bool ProtocolHandlerMcp2515::ReceiveMessage(canmsg_t * p_canmsg)
 	// conditional compilation
 	return 1;
 }
-
-	
 	
 
-bool ProtocolHandlerMcp2515::ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2)
+rx_buffers_status ProtocolHandlerMcp2515::ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2)
 {
-	unsigned char status =  0; //temporary for debug, combine with mcp2515_rx_status
-	bool return_status = false;
+	unsigned char message_in_read_buffer =  0; //temporary for debug, combine with mcp2515_rx_status
+	rx_buffers_status status = {};
 	
-	status = IsMessageInRxBuffers();
+	message_in_read_buffer = IsMessageInRxBuffers();
 	
-	if( (status & MESSAGE_IN_RX0) == MESSAGE_IN_RX0) {
-		ReadRxBuffer(BUFFER_RX0, status, p_canmsg_1);
-		p_canmsg_1->timestamp = 0; //for debug purpose, this indicates that timestamp was changed
-		return_status = true;
-	}
-	if( (status & MESSAGE_IN_RX1) == MESSAGE_IN_RX1) {
-		ReadRxBuffer(BUFFER_RX1, status, p_canmsg_2);
-		p_canmsg_2->timestamp = 0;
-		return_status = true;
-	}
-	else {
-		return return_status;
+	if( (message_in_read_buffer & MESSAGE_IN_RX0) == MESSAGE_IN_RX0) {
+		ReadRxBuffer(BUFFER_RX0, message_in_read_buffer, p_canmsg_1);
+		// p_canmsg_1->timestamp = 0; //for debug purpose, this indicates that timestamp was changed
+		status.rx0_status = true;
 	}
 	
-	return return_status;
+	if( (message_in_read_buffer & MESSAGE_IN_RX1) == MESSAGE_IN_RX1) {
+		ReadRxBuffer(BUFFER_RX1, message_in_read_buffer, p_canmsg_2);
+		// p_canmsg_2->timestamp = 0;
+		status.rx1_status = true;
+	}
+	
+	return status;
 }
 
 bool ProtocolHandlerMcp2515::ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2, canmsg_t * p_canmsg_3, canmsg_t * p_canmsg_4)

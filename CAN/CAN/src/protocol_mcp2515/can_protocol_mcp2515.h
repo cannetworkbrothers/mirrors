@@ -39,7 +39,6 @@ struct MaskFilterProperties{
 	uint32_t	data; 
 };
 
-
 class ProtocolHandlerMcp2515: public ProtocolHandler
 {
 private:
@@ -62,11 +61,11 @@ public:
 	ProtocolHandlerMcp2515() {};
 	~ProtocolHandlerMcp2515() {};
 	
-	unsigned char	Init(const unsigned char can_speed);
-	uint8_t			InitFiltering(MaskFilterProperties masks[], MaskFilterProperties filters[]);
-	bool			ReceiveMessage(canmsg_t * p_canmsg);
-	bool			ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2);
-	bool			ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2,
+	unsigned char		Init(const unsigned char can_speed);
+	uint8_t				InitFiltering(MaskFilterProperties masks[], MaskFilterProperties filters[]);
+	bool				ReceiveMessage(canmsg_t * p_canmsg);
+	rx_buffers_status	ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2);
+	bool				ReceiveMessage(canmsg_t * p_canmsg_1, canmsg_t * p_canmsg_2,
 						canmsg_t * p_canmsg_3, canmsg_t * p_canmsg_4);				
 	unsigned char	SendMessage(canmsg_t * p_canmsg);
 };
