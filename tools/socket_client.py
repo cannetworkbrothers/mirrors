@@ -1,10 +1,12 @@
+"""socket_client - reading data from CAM shield"""
 #!/usr/bin/python           # This is client.py file
 
 import socket               # Import socket module
 import time
-import random
-
 from threading import Thread
+
+import config as config
+from utils import generate_can_messages
 
 class SocketClient(Thread):
     """docstring for SocketClient"""
@@ -13,28 +15,10 @@ class SocketClient(Thread):
 
     def run(self):
         client_sock = socket.socket()         # Create a socket object
-        port = 9191                # Reserve a port for your service.
 
-        can_bus_messages = []
-        for msg_number in range(1, 501):
-        # while True
-            out = ""
-            can_id = random.randint(0, 0x1fffffff)
-            if can_id > 0x7ff:
-                out = "W"
-            else:
-                out = "S"
-            can_id = str(hex(can_id))[2::]
-            out = out + can_id
-            data_byte = []
-            for iterator in range(0, 8):
-                temp_intereger = random.randint(0, 0xff)
-                data_byte.append(str(hex(temp_intereger))[2::])
-                out = out + "D" + data_byte[iterator]
-            can_bus_messages.append(out)
-            print((msg_number -1), out)
+        can_bus_messages = generate_can_messages(501)
         start = time.time()
-        client_sock.connect(('localhost', port))
+        client_sock.connect(('localhost', config.TCP_PORT))
         index = 0
         while True:
             # s.send(b'W5eaffD0eaD1aeD20D30D42D5a0D6b1D7')

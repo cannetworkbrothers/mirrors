@@ -1,3 +1,6 @@
+"""
+Server - opens port and read the messages
+"""
 import socket
 import time
 import com_parser
@@ -19,7 +22,7 @@ class SocketServer(object):
         self.sock.listen(1)
 
 
-    def print_can_mesasges_to_file(self, file_obj, can_array):
+    def log_messages_to_file(self, file_obj, can_array):
         for can_item in can_array:
             if can_item.is_extended == 0:
                 file_obj.write("Stand.: ")
@@ -34,15 +37,15 @@ class SocketServer(object):
     def start_forever(self, buffer_size):
         log_file = open(LOG_FILE_NAME, "w")
         can_messages_file = open(CAN_BUS_LOG_FILE_NAME, "w")
-        new_can_messages_file = open(NEW_CAN_MESSAGES_FILE_NAME, "w")
+        new_messages_file = open(NEW_CAN_MESSAGES_FILE_NAME, "w")
         period_of_listening = 0
         while True:
             connection, address = self.sock.accept()
 
             print('Connection address:', address)
             can_bus = []
-            all_messages_of_last_period = []
-            new_messages_of_last_period = []
+            all_messages = []
+            new_messages = []
             is_new_period = True
             is_first_run = True
 
@@ -99,81 +102,81 @@ class SocketServer(object):
                         log_file.write(can_byte + " ")
                     log_file.write("\n")
                 if is_new_period:
-                    all_messages_of_last_period = just_received_messages
+                    all_messages = just_received_messages
                     is_new_period = False
                 else:
                     for item in just_received_messages:
                         is_current_present = False
-                        for item_last_period in all_messages_of_last_period:
+                        for item_last_period in all_messages:
                             if  item.can_id == item_last_period.can_id and \
                                 item.data == item_last_period.data:
                                 is_current_present = True
                                 break
                         if is_current_present is False:
-                            all_messages_of_last_period.append(item)
+                            all_messages.append(item)
                 if (time.time() - start_time) > 3:
                     start_time = time.time()
-                    print("Were received: " + str(len(all_messages_of_last_period)))
+                    print("Were received: " + str(len(all_messages)))
                     if is_first_run:
                         is_first_run = False
-                        can_bus = all_messages_of_last_period
-                        new_found = len(all_messages_of_last_period)
+                        can_bus = all_messages
+                        new_found = len(all_messages)
                         print(str(new_found) + \
                             " new messages were found during last 3 seconds")
                         log_file.write(str(new_found) + \
                             " new messages were found during last 3 seconds")
-                        self.print_can_mesasges_to_file(log_file, all_messages_of_last_period)
+                        self.log_messages_to_file(log_file, all_messages)
                         can_messages_file.close()
-                        open(CAN_BUS_LOG_FILE_NAME,"w").close()
+                        open(CAN_BUS_LOG_FILE_NAME, "w").close()
                         can_messages_file = open(CAN_BUS_LOG_FILE_NAME, "w")
-                        self.print_can_mesasges_to_file(can_messages_file, can_bus)
-                        new_can_messages_file.write("Period: " + str(period_of_listening) + "\n\n")
-                        self.print_can_mesasges_to_file(new_can_messages_file, all_messages_of_last_period)
-                        new_can_messages_file.write("\n\n\n")
+                        self.log_messages_to_file(can_messages_file, can_bus)
+                        new_messages_file.write("Period: " + str(period_of_listening) + "\n\n")
+                        self.log_messages_to_file(new_messages_file, all_messages)
+                        new_messages_file.write("\n\n\n")
                         period_of_listening += 1
-                        all_messages_of_last_period = []
-                        new_messages_of_last_period = []
+                        all_messages = []
+                        new_messages = []
                         is_new_period = True
                     else:
                         is_current_present = False
-                        for item_last in all_messages_of_last_period:
+                        for item_last in all_messages:
                             for item_from_all in can_bus:
                                 if item_last.can_id == item_from_all.can_id \
                                     and item_last.data == item_from_all.data:
                                     is_current_present = True
                                     break
                             if is_current_present is False:
-                                new_messages_of_last_period.append(item_last)
-                        if new_messages_of_last_period != []:
-                            new_found = len(new_messages_of_last_period)
+                                new_messages.append(item_last)
+                        if new_messages != []:
+                            new_found = len(new_messages)
                             print(str(new_found) + \
                                 " new messages were found during last 3 seconds")
-                            log_file.write("New messages(" + str(len(new_messages_of_last_period))\
+                            log_file.write("New messages(" + str(len(new_messages))\
                                 +  ") were found during last 3 seconds")
-                            for can_msg in new_messages_of_last_period:
+                            for can_msg in new_messages:
                                 can_bus.append(can_msg)
-                            self.print_can_mesasges_to_file(log_file, new_messages_of_last_period)
+                            self.log_messages_to_file(log_file, new_messages)
                             can_messages_file.close()
-                            open(CAN_BUS_LOG_FILE_NAME,"w").close()
+                            open(CAN_BUS_LOG_FILE_NAME, "w").close()
                             can_messages_file = open(CAN_BUS_LOG_FILE_NAME, "w")
-                            self.print_can_mesasges_to_file(can_messages_file, can_bus)
-                            new_can_messages_file.write("Period: " + str(period_of_listening) + "\n\n")
-                            self.print_can_mesasges_to_file(new_can_messages_file, new_messages_of_last_period)
-                            new_can_messages_file.write("\n\n\n")
+                            self.log_messages_to_file(can_messages_file, can_bus)
+                            new_messages_file.write("Period: " + str(period_of_listening) + "\n\n")
+                            self.log_messages_to_file(new_messages_file, new_messages)
+                            new_messages_file.write("\n\n\n")
                             period_of_listening += 1
                         else:
                             print("No new messages during last 3 seconds")
-                        all_messages_of_last_period = []
-                        new_messages_of_last_period = []
+                        all_messages = []
+                        new_messages = []
                         is_new_period = True
                 # com_parser.get_can_messages(data.decode('cp1252').encode('utf-8').decode('utf-8'))
                 # print("received data:", data)
                 # connection.send(data)
             log_file.close()
             can_messages_file.close()
-            open(CAN_BUS_LOG_FILE_NAME,"w").close()
+            open(CAN_BUS_LOG_FILE_NAME, "w").close()
             can_messages_file = open(CAN_BUS_LOG_FILE_NAME, "w")
-            self.print_can_mesasges_to_file(can_messages_file, can_bus)
+            self.log_messages_to_file(can_messages_file, can_bus)
             can_messages_file.close()
-            new_can_messages_file.close()
+            new_messages_file.close()
             connection.close()
