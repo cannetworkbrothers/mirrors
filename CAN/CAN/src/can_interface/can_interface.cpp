@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 void CanInterface::init(){
 	CREATE_LOGGER(logger)
@@ -47,56 +48,55 @@ bool CanInterface::SendMessageToBus(canmsg_t * p_canmsg){
 	return status_message;
 }
 
+int freeRamMemory () {
+	extern int __heap_start, *__brkval;
+	int v;
+	return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
+}
+
 bool CanInterface::SendMessageToPC(canmsg_t * p_canmsg)
 {
 	
 	USART transmiter;
 	
 	//calculate number of chars in result string
-	uint8_t string_to_send_length = GetNumberOfDigits(p_canmsg->id, 16);
+	transmiter.WriteLine((char*) "SendToPC-enter");
+	//char *can_msg_addr = (char*) malloc(32);
+	//transmiter.WriteLine((char*) itoa((int) (p_canmsg->id), can_msg_addr, 10));
+	//free(can_msg_addr);
 	
-	char *id_prefix = (char*) malloc(2);
+	transmiter.WriteLine((char*) "id-start");
+	
+	char buffer[16];
+	//uint8_t length_of_id = GetNumberOfDigits(p_canmsg->id, 16);
+	//uint8_t length_of_can_msg_str = 1 + length_of_id;
+	//for(uint8_t i = 0; i < p_canmsg->dlc; i++){
+		//length_of_can_msg_str++;
+		//length_of_can_msg_str += GetNumberOfDigits(p_canmsg->data[i], 16);
+	//}
+	//length_of_can_msg_str++;
+	
+	//char *can_msg_str;
+	//can_msg_str = (char*) malloc(length_of_can_msg_str);
+	char can_msg_str[34];
 	if (p_canmsg->flags.extended == 1)
 	{
-		id_prefix = (char*) "W";
+		strcpy(can_msg_str, (char*) "W");
 	}
 	else
 	{
-		id_prefix = (char*) "S";
-	}
-	char *id_itself = (char*) malloc(string_to_send_length+1);
-	itoa(p_canmsg->id, id_itself, 16);
-	
-	char *id = (char *) malloc(strlen(id_prefix)+strlen(id_itself)+1);
-	strcpy(id, id_prefix);
-	strcat(id, id_itself);
-	free(id_prefix);
-	free(id_itself);
-	
-	for(uint8_t i = 0; i < p_canmsg->dlc; i++){
-		string_to_send_length += GetNumberOfDigits(p_canmsg->data[i], 16);
+		strcpy(can_msg_str, (char*) "S");
 	}
 	
-	//plus W/S, plus zero end
-	string_to_send_length += 2;
-	
-	//plus number of "D"
-	string_to_send_length += p_canmsg->dlc;
-	
-	char *can_msg_str = (char*) malloc(string_to_send_length);
-	strcpy(can_msg_str, id);
-	free(id);
+	strcat(can_msg_str, itoa(p_canmsg->id, buffer, 16));
 	
 	for (uint8_t i = 0; i < p_canmsg->dlc; i++)
 	{
-		char * data = (char *) malloc((GetNumberOfDigits(p_canmsg->data[i], 16) + 1));
-		itoa(p_canmsg->data[i], data, 16);
 		strcat(can_msg_str, "D");
-		strcat(can_msg_str, data);
-		free(data);
+		strcat(can_msg_str, itoa(p_canmsg->data[i], buffer, 16));
 	}
-	transmiter.Write(can_msg_str);
-	free(can_msg_str);
+	transmiter.WriteLine(can_msg_str);
+	//free(can_msg_str);
 	return true;
 }
 
