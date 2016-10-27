@@ -15,8 +15,8 @@ def read_com_port():
             data = ser.read()
             if data:
                 counter += 1
-                print("got data" + str(counter))
-                # sys.stdout.write(str(data.decode('cp1252').encode('utf-8').decode('utf-8')))
+                # print("got data" + str(counter))
+                sys.stdout.write(str(data.decode('cp1252').encode('utf-8').decode('utf-8')))
     except serial.serialutil.SerialException:
         print("COM port is unpluged. Bye!") 
 

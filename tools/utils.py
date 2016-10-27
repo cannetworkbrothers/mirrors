@@ -22,3 +22,24 @@ def generate_can_messages(number_of_messages):
         messages_to_generate.append(out)
         print((msg_number -1), out)
     return messages_to_generate
+
+def left_join_lists(left_lst, right_lst):
+    """
+    Join rigth 2D list to left 2D list
+    """
+    new_messages = []
+    is_equal = False
+    for right_val in right_lst:
+        for left_val in left_lst:
+            if len(right_val) == len(left_val):
+                is_equal = True
+                for right_item, left_item in right_val, left_val:
+                    if right_item != left_item:
+                        is_equal = False
+                        break
+        if is_equal is False:
+            left_lst.append(right_val)
+            new_messages.append(right_val)
+        else:
+            is_equal = False
+    return left_lst, new_messages

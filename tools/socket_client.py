@@ -28,11 +28,13 @@ class SocketClient(Thread):
                     index = 0
                 time.sleep(0.05)
                 client_sock.send(bytearray(str.encode(can_bus_messages[index])))
+                # client_sock.send(str(data.decode('cp1252').encode('utf-8').decode('utf-8')))
                 index += 1 
                 if (time.time() - start) > 60:
                     break
         else:
-            ser = serial.Serial(config.TCP_PORT, config.BAUD_RATE, config.TIMEOUT, config.RTSCTS)
+            ser = serial.Serial(config.COM_PORT, config.BAUD_RATE, \
+                timeout=config.TIMEOUT, rtscts=config.RTSCTS)
             while True:
                 data = ser.read()
                 if data:

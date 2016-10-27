@@ -1,3 +1,4 @@
+import re
 import copy
 
 # str_from_socket = "W12eD0D2DaDb1D123WeaDaeD0D0D2WefDa0Db1D11eDeaDaeD0D0D2DaWeDb1D1"
@@ -44,80 +45,34 @@ def reset_wrong_chars(list_of_chars, position, can_msg):
     list_of_chars = find_start_of_can_message(list_of_chars, can_msg)
     return list_of_chars
 
-def get_can_messages(input_str):
-    # print("Incoming str" + input_str)
-    can_bus = []
-    can_message = CanMessage("", 0, [])  
-    is_id_flag = True
-    data_number = ""
-    input_sequence = list(input_str)
-    input_sequence = find_start_of_can_message(input_str, can_message)
-    while True:
-        if len(input_sequence) == 0:
-            break
-        iterator = 0
-        dlc = 0
-        for char in input_sequence:
-            iterator += 1
-            if is_id_flag is True:
-                if char in '0123456789abcdef':
-                    can_message.can_id += char
-                    continue
-                elif char == 'D':
-                    is_id_flag = False
-                    dlc += 1
-                    continue
-                else:
-                    # previous sequence is wrong
-                    input_sequence = reset_wrong_chars(input_sequence, iterator, can_message)
-                    is_id_flag = True
-                    break
-            else:
-                if char in '0123456789abcdef':
-                    data_number += char
-                    continue
-                elif char == 'D':
-                    dlc += 1
-                    can_message.data.append(data_number)
-                    data_number = ""
-                    continue
-                elif char == 'W' or char == 'S':
-                    #start of new can mesage, need to store previous
-                    if can_message.can_id != "" and len(can_message.data) < 9:
-                        can_bus.append(copy.copy(can_message))
-                    else:
-                        print("Detected wrong message: ", end="")
-                        print(can_message.can_id, can_message.data)
-                    clear_can_message(can_message)
-                    is_id_flag = True
-                    if char == 'W':
-                        can_message.is_extended = 1
-                    else:
-                        can_message.is_extended = 0
-                    data_number = ""
-                    continue
-                else:
-                    # previous sequence is wrong
-                    input_sequence = reset_wrong_chars(input_sequence, iterator, can_message)
-                    break
-        input_sequence = []
-    if can_message.can_id != "" and len(can_message.data) < 9:
-        if data_number != "":
-            can_message.data.append(data_number)
-        if dlc < 8:
-            print(input_str)
-        can_bus.append(can_message)
-    else:
-        print("Detected wrong message: ", end="")
-        print(can_message.can_id, can_message.data)
-    return can_bus
+def remove_empty_string(arr):
+    for item in arr:
+        if item == "":
+            arr.remove(item)
+    return arr
 
-# if __name__ == '__main__':
-#     CAN_BUS = []
-#     CAN_BUS = main(str_from_socket)
-#     for msg in CAN_BUS:
-#         if msg.is_extended == 0:
-#             print("Standard ", end="")
-#         else:
-#             print("Extended ", end="")
-#         print(msg.can_id, msg.data)
+def get_messages(input_str):
+    return_str = ""
+    return_list_of_messages = []
+    can_message = []
+    if len(input_str) > 1:
+        can_members = re.findall("[^W]*", input_str)
+    else:
+        return input_str, return_list_of_messages
+    remove_empty_string(can_members)
+    for item in can_members:
+        if item[-1] == "N":
+            if item[0] == "S":
+                can_message.append("S")
+                match = re.findall("[^S,N]*", item)
+            else:
+                can_message.append("W")
+                match = re.findall("[^N]*", item)
+            remove_empty_string(match)
+            match = re.findall("[^D]*", match[0])
+            remove_empty_string(match)
+            can_message += match
+            return_list_of_messages.append(can_message)
+        else:
+            return item, return_list_of_messages
+    return return_str, return_list_of_messages

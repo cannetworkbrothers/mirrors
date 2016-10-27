@@ -23,7 +23,7 @@ def main():
     client_thread.setDaemon(True)
     client_thread.start()
 
-    server_com.start_forever(config.BUFFER_SIZE)
+    server_com.listen(config.BUFFER_SIZE)
 
 if __name__ == '__main__':
     try:
