@@ -57,19 +57,21 @@ class SocketServer(object):
                     log_file.write(str("received trash\n"))
                     continue
                 # print("received data:", data)
-                log_file.write(str("received data: ") + str(data, "cp1252") + "\n")
+                # log_file.write(str("received data: ") + str(data, "cp1252") + "\n")
                 if current_str == "":
-                    if (data[0] == "W") or (data[0] == "S"):
+                    if (received_data_string[0] == "W") or (received_data_string[0] == "S"):
                         current_str += received_data_string
                         current_str, recent_msg = com_parser.get_messages(current_str)
+                        log_file.write("parse return: " + current_str + "\n")
                     else:
                         current_str = ""
                         continue
                 else:
                     current_str = current_str + received_data_string
                     current_str, recent_msg = com_parser.get_messages(current_str)
+                    log_file.write("parse return: " + current_str + "\n")
+                new_messages, recent_msg = utils.left_join_lists(new_messages, recent_msg)
                 can_bus, recent_new_msgs = utils.left_join_lists(can_bus, recent_msg)
-                new_messages = new_messages + recent_new_msgs
                 if (time.time() - start_time) > 3:
                     start_time = time.time()
                     print("During last 3 seconds " + str(len(new_messages)) + "were received")

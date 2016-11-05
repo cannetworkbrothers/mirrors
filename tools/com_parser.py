@@ -46,12 +46,19 @@ def reset_wrong_chars(list_of_chars, position, can_msg):
     return list_of_chars
 
 def remove_empty_string(arr):
+    """
+    remove empty strings from the array
+    """
     for item in arr:
         if item == "":
             arr.remove(item)
     return arr
 
 def get_messages(input_str):
+    """
+    parse incoming string to CAN messages
+    returns CAN messages and remaing part of string
+    """
     return_str = ""
     return_list_of_messages = []
     can_message = []
@@ -60,7 +67,10 @@ def get_messages(input_str):
     else:
         return input_str, return_list_of_messages
     remove_empty_string(can_members)
+    # print(can_members)
     for item in can_members:
+        if item == "":
+            continue
         if item[-1] == "N":
             if item[0] == "S":
                 can_message.append("S")

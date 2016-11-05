@@ -1,5 +1,6 @@
 """Utils used for storing common functions"""
 import random
+import itertools
 
 def generate_can_messages(number_of_messages):
     """to test - generate the CAN messages """
@@ -33,7 +34,7 @@ def left_join_lists(left_lst, right_lst):
         for left_val in left_lst:
             if len(right_val) == len(left_val):
                 is_equal = True
-                for right_item, left_item in right_val, left_val:
+                for right_item, left_item in itertools.product(right_val, left_val):
                     if right_item != left_item:
                         is_equal = False
                         break

@@ -38,7 +38,7 @@ class SocketClient(Thread):
             while True:
                 data = ser.read()
                 if data:
-                    sys.stdout.write(str(data.decode('cp1252').encode('utf-8').decode('utf-8')))
+                    # sys.stdout.write(str(data.decode('cp1252').encode('utf-8').decode('utf-8')))
                     client_sock.send(data)
 
         client_sock.close() # Close the socket when done
