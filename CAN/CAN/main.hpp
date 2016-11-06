@@ -22,9 +22,9 @@
 #define USART_SUPPORT ON
 //USART_SPEED is COM speed, possible values:
 //100, 300, 600, 1200, 2400, 4800, 9600, 14400, 19200, 38400, 56000, 57600, 115200, 128000, 256000
-#define USART_SPEED 9600
+#define USART_SPEED 56000
 #define USB_SUPPORT OFF
-#define ENABLE_LOG ON
+#define ENABLE_LOG OFF
 
 #if USART_SUPPORT == ON
 	#include "src/usart/usart.hpp"

@@ -58,27 +58,11 @@ bool CanInterface::SendMessageToPC(canmsg_t * p_canmsg)
 {
 	
 	USART transmiter;
-	
-	//calculate number of chars in result string
-	transmiter.WriteLine((char*) "SendToPC-enter");
-	//char *can_msg_addr = (char*) malloc(32);
-	//transmiter.WriteLine((char*) itoa((int) (p_canmsg->id), can_msg_addr, 10));
-	//free(can_msg_addr);
-	
-	transmiter.WriteLine((char*) "id-start");
+	CREATE_LOGGER(logger)
+	LOG(logger, (char*) "SendToPC-enter");
 	
 	char buffer[16];
-	//uint8_t length_of_id = GetNumberOfDigits(p_canmsg->id, 16);
-	//uint8_t length_of_can_msg_str = 1 + length_of_id;
-	//for(uint8_t i = 0; i < p_canmsg->dlc; i++){
-		//length_of_can_msg_str++;
-		//length_of_can_msg_str += GetNumberOfDigits(p_canmsg->data[i], 16);
-	//}
-	//length_of_can_msg_str++;
-	
-	//char *can_msg_str;
-	//can_msg_str = (char*) malloc(length_of_can_msg_str);
-	char can_msg_str[34];
+	char can_msg_str[35]; // MAX 35 = 1 (W,S) + 8 (1fffffff) + 8 (D) + 8*2 (ff) + 1(N) + 1 ('0') 
 	if (p_canmsg->flags.extended == 1)
 	{
 		strcpy(can_msg_str, (char*) "W");
@@ -95,7 +79,8 @@ bool CanInterface::SendMessageToPC(canmsg_t * p_canmsg)
 		strcat(can_msg_str, "D");
 		strcat(can_msg_str, itoa(p_canmsg->data[i], buffer, 16));
 	}
-	transmiter.WriteLine(can_msg_str);
+	strcat(can_msg_str, "N");
+	transmiter.Write(can_msg_str);
 	//free(can_msg_str);
 	return true;
 }
