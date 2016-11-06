@@ -14,7 +14,7 @@ def log_messages_to_file(file_obj, can_array):
     """
     for can_item in can_array:
         for item in can_item:
-            file_obj.write(item + " ")
+            file_obj.write(item)
         file_obj.write("\n")
 
 class SocketServer(object):
@@ -36,7 +36,7 @@ class SocketServer(object):
         invalid_pattern = "[^W,S,N,1,2,3,4,5,6,7,8,9,0,a,b,c,d,D,e,f]"
         log_file = open(config.LOG_FILE_NAME, "w")
         can_messages_file = open(config.CAN_BUS_LOG_FILE_NAME, "w")
-        new_messages_file = open(config.NEW_CAN_MESSAGES_FILE_NAME, "w")
+        all_mesages_of_period_file = open(config.NEW_CAN_MESSAGES_FILE_NAME, "w")
         period_of_listening = 0
         current_str = ""
         while True:
@@ -44,7 +44,11 @@ class SocketServer(object):
 
             print('Connection address:', address)
             can_bus = []
+            all_mesages_of_period = []
             new_messages = []
+            valid_str = False
+            is_message_present = False
+            number_of_new_messages = 0
 
             start_time = time.time()
             while True:
@@ -53,41 +57,42 @@ class SocketServer(object):
                 match = re.search(invalid_pattern, received_data_string)
                 if match != None:
                     current_str = ""
-                    new_messages = []
+                    all_mesages_of_period = []
                     log_file.write(str("received trash\n"))
                     continue
-                # print("received data:", data)
+                # print("received data:", received_data_string)
                 # log_file.write(str("received data: ") + str(data, "cp1252") + "\n")
-                if current_str == "":
-                    if (received_data_string[0] == "W") or (received_data_string[0] == "S"):
-                        current_str += received_data_string
-                        current_str, recent_msg = com_parser.get_messages(current_str)
-                        log_file.write("parse return: " + current_str + "\n")
-                    else:
-                        current_str = ""
-                        continue
+                current_str += received_data_string
+                if valid_str:
+                    #starts on W,S
+                    is_message_present, current_str, recent_msg = com_parser.get_messages(current_str)
                 else:
-                    current_str = current_str + received_data_string
-                    current_str, recent_msg = com_parser.get_messages(current_str)
-                    log_file.write("parse return: " + current_str + "\n")
-                new_messages, recent_msg = utils.left_join_lists(new_messages, recent_msg)
-                can_bus, recent_new_msgs = utils.left_join_lists(can_bus, recent_msg)
+                    current_str = com_parser.find_start_of_can_message(current_str)
+                    if current_str == "":
+                        continue
+                    else:
+                        valid_str = True
+                        is_message_present, current_str, recent_msg = com_parser.get_messages(current_str)
+                if is_message_present:
+                    # log_file.write("server::listen::parse return: " + current_str + "\n")
+                    all_mesages_of_period, recent_msg = utils.left_join_lists(all_mesages_of_period, recent_msg)
+                    if recent_msg != []:
+                        can_bus, new_messages = utils.left_join_lists(can_bus, recent_msg)
+                        number_of_new_messages += len(new_messages)
                 if (time.time() - start_time) > 3:
                     start_time = time.time()
-                    print("During last 3 seconds " + str(len(new_messages)) + "were received")
+                    print("During last 3 seconds " + str(number_of_new_messages) + " new received")
+                    print(can_bus)
                     open(config.CAN_BUS_LOG_FILE_NAME, "w").close()
                     can_messages_file = open(config.CAN_BUS_LOG_FILE_NAME, "w")
                     log_messages_to_file(can_messages_file, can_bus)
-                    new_messages_file.write("Period: " + str(period_of_listening) + "\n\n")
-                    log_messages_to_file(new_messages_file, new_messages)
-                    new_messages_file.write("\n\n\n")
+                    can_messages_file.close()
+
+                    all_mesages_of_period_file.write("Period: " + str(period_of_listening) + "\n\n")
+                    log_messages_to_file(all_mesages_of_period_file, all_mesages_of_period)
+                    all_mesages_of_period_file.write("\n\n\n")
                     period_of_listening += 1
-                    new_messages = []
-            log_file.close()
-            can_messages_file.close()
-            open(config.CAN_BUS_LOG_FILE_NAME, "w").close()
-            can_messages_file = open(config.CAN_BUS_LOG_FILE_NAME, "w")
-            log_messages_to_file(can_messages_file, can_bus)
-            can_messages_file.close()
-            new_messages_file.close()
-            connection.close()
+                    number_of_new_messages = 0
+                    all_mesages_of_period = []
+                    valid_str = False
+
