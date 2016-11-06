@@ -35,95 +35,20 @@ int main(void)
 	can_interface.init_filtering();
 	
 	// create buffer for CAN message
-	// canmsg_t * p_can_message_1 = (canmsg_t*) malloc(sizeof(canmsg_t));
-	// canmsg_t * p_can_message_2 = (canmsg_t*) malloc(sizeof(canmsg_t));
-		
-	// rx_buffers_status receive_status = {};
+	 canmsg_t * p_can_message_1 = (canmsg_t*) malloc(sizeof(canmsg_t));
+	 canmsg_t * p_can_message_2 = (canmsg_t*) malloc(sizeof(canmsg_t));
+	 
+	 rx_buffers_status receive_status = {};
 	LOG(logger, (char*) "Waiting for message...")
-	canmsg_t my_id = {};
-    srand(15);
-    my_id.id = rand() % 0x1fffffff;
-    my_id.flags.rtr = 0;
-    if (my_id.id > 0x7ff)
-    {
-      my_id.flags.extended = 1;
-    }
-    else{
-      my_id.flags.extended = 0;
-    }
-    my_id.dlc = 8;
-    for (int i = 0; i < 8; ++i)
-    {
-      my_id.data[i]  = rand() % 255;
-    }
-    my_id.timestamp = 12212;
-    
-    canmsg_t my_id_2 = {};
-    srand(10);
-    my_id_2.id = rand() % 0x6ff;
-    my_id_2.flags.rtr = 0;
-    if (my_id_2.id > 0x7ff)
-    {
-      my_id_2.flags.extended = 1;
-    }
-    else{
-      my_id_2.flags.extended = 0;
-    }
-    my_id_2.dlc = 8;
-    for (int i = 0; i < 8; ++i)
-    {
-      my_id_2.data[i]  = rand() % 255;
-    }
-    my_id_2.timestamp = 1111;
-	while (true) {
-		LOG(logger, (char*) "enter...")
-		//char* free_memory_string = (char*) malloc(10);
-		LOG(logger, (char*) itoa(freeRam(), free_memory_string, 10));
-		can_interface.SendMessageToPC(&my_id);
-		can_interface.SendMessageToPC(&my_id_2);
-		LOG(logger, (char*) itoa(freeRam(), free_memory_string, 10));
-		//free(free_memory_string);
-		_delay_ms(20);
-	}
-	//while (true)
-	//{
-		//receive_status = can_interface.ReceiveMessage(p_can_message_1, p_can_message_2);
-		//if(receive_status.rx0_status == true){
-			//LOG(logger, (char*) "Message in Rx0")
-			//char* data_str = (char*) malloc(3);
-				//
-			//itoa(p_can_message_1->flags.extended, data_str, 10);
-			//LOG(logger, (char*) data_str)
-				//
-			//itoa(p_can_message_1->id, data_str, 16);
-			//LOG(logger, (char*) data_str)
-	//
-			//for (int i = 0; i < 8; ++i)
-			//{
-				///* code */
-				//itoa(p_can_message_1->data[i], data_str, 16);
-				//LOG(logger, (char*) data_str)
-			//}
-			//free(data_str);
-		//}
-		//if (receive_status.rx1_status == true){
-			//LOG(logger, (char*) "Message in Rx1")
-			//char* data_str = (char*) malloc(3);
-				//
-			//itoa(p_can_message_2->flags.extended, data_str, 10);
-			//LOG(logger, (char*) data_str)
-				//
-			//itoa(p_can_message_2->id, data_str, 16);
-			//LOG(logger, (char*) data_str)
-				//
-			//for (int i = 0; i < 8; ++i)
-			//{
-				///* code */
-				//itoa(p_can_message_2->data[i], data_str, 16);
-				//LOG(logger, (char*) data_str)
-			//}
-			//free(data_str);
-		//}
-	//} 
+	while (true)
+	{
+		receive_status = can_interface.ReceiveMessage(p_can_message_1, p_can_message_2);
+		if(receive_status.rx0_status == true){
+			can_interface.SendMessageToPC(p_can_message_1);
+		}
+		if (receive_status.rx1_status == true){
+			can_interface.SendMessageToPC(p_can_message_2);
+		}
+	} 
 }
 
