@@ -25,3 +25,12 @@
 *.atsuo
 *.atsln
 .\CAN\.vs\CAN\v14\*
+
+### Python ###
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+### Other stuff ###
+*.log
