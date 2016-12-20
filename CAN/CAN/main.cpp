@@ -31,7 +31,7 @@ int main(void)
  	//canmsg_t can_message_buffer;
  	CanInterface can_interface;
 	LOG(logger, (char*) "Initialized can_interface!!!")
- 	can_interface.init();
+ 	can_interface.init(CAN_5kBPS);
 	can_interface.init_filtering();
 	
 	// create buffer for CAN message
