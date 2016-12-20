@@ -17,10 +17,10 @@
 #include <string.h>
 #include <math.h>
 
-void CanInterface::init(){
+void CanInterface::init(uint8_t can_bus_nominal_speed){
 	CREATE_LOGGER(logger)
 	LOG(logger, (char*) "Can.Init start")
-	can_protocol_.Init(CAN_5kBPS);
+	can_protocol_.Init(can_bus_nominal_speed);
 	LOG(logger, (char*) "Can.Init end")
 }
 

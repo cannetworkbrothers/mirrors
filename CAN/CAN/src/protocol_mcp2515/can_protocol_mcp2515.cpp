@@ -8,6 +8,12 @@
 #include <inttypes.h>
 #include "can_protocol_mcp2515.h"
 #include "math.h"
+#ifndef MCP2515_H_
+	#include "mcp2515.h"
+#endif
+#ifndef CAN_INTERFACE_H_
+	#include "../can_interface/can_interface.h"
+#endif
 #ifndef MAIN_H_
 	#include "../../main.hpp"
 #endif
@@ -384,8 +390,76 @@ unsigned char ProtocolHandlerMcp2515::SetCanSpeed(unsigned char can_speed)
 {
 	switch (can_speed)
 	{
-	case (0): // enum 0 - MCP_5kBPS in CanController
-		SetBitRateRegisters(MCP2515_TIMINGS_500K);
+	case (CAN_5kBPS):
+		SetBitRateRegisters(MCP2515_TIMINGS_5kBPS);
+		return MCP_OK;
+		break;
+	case (CAN_10KBPS):
+		SetBitRateRegisters(MCP2515_TIMINGS_10kBPS);
+		return MCP_OK;
+		break;
+	case (CAN_20KBPS):
+		SetBitRateRegisters(MCP2515_TIMINGS_20kBPS);
+		return MCP_OK;
+		break;
+	case (CAN_25KBPS):
+		SetBitRateRegisters(MCP2515_TIMINGS_25kBPS);
+		return MCP_OK;
+		break;
+	case (CAN_31K25BPS):
+		SetBitRateRegisters(MCP2515_TIMINGS_31K25BPS);
+		return MCP_OK;
+		break;
+	case (CAN_33KBPS):
+		SetBitRateRegisters(MCP2515_TIMINGS_33KBPS);
+		return MCP_OK;
+		break;
+	case (CAN_40KBPS):
+		SetBitRateRegisters(MCP2515_TIMINGS_40kBPS);
+		return MCP_OK;
+		break;
+	case (CAN_50KBPS):
+		SetBitRateRegisters(MCP2515_TIMINGS_50kBPS);
+		return MCP_OK;
+		break;
+	case (CAN_80KBPS):
+		SetBitRateRegisters(MCP2515_TIMINGS_80kBPS);
+		return MCP_OK;
+		break;
+	case (CAN_83K3BPS):
+		SetBitRateRegisters(MCP2515_TIMINGS_83K3BPS);
+		return MCP_OK;
+		break;
+	case (CAN_95KBPS):
+		SetBitRateRegisters(MCP2515_TIMINGS_95kBPS);
+		return MCP_OK;
+		break;
+	case (CAN_100KBPS):
+		SetBitRateRegisters(MCP2515_TIMINGS_100kBPS);
+		return MCP_OK;
+		break;
+	case (CAN_125KBPS):
+		SetBitRateRegisters(MCP2515_TIMINGS_125kBPS);
+		return MCP_OK;
+		break;
+	case (CAN_200KBPS):
+		SetBitRateRegisters(MCP2515_TIMINGS_200kBPS);
+		return MCP_OK;
+		break;
+	case (CAN_250KBPS):
+		SetBitRateRegisters(MCP2515_TIMINGS_250kBPS);
+		return MCP_OK;
+		break;
+	case (CAN_500KBPS):
+		SetBitRateRegisters(MCP2515_TIMINGS_500kBPS);
+		return MCP_OK;
+		break;
+	case (CAN_666KBPS):
+		SetBitRateRegisters(MCP2515_TIMINGS_666kBPS);
+		return MCP_OK;
+		break;
+	case (CAN_1000KBPS):
+		SetBitRateRegisters(MCP2515_TIMINGS_1000kBPS);
 		return MCP_OK;
 		break;
 	default:

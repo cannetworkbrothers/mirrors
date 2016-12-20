@@ -11,7 +11,24 @@
 #include "../protocol_mcp2515/can_protocol_mcp2515.h"
 #include "../controller_atmega8/controller_atmega8.h"
 
-#define CAN_5kBPS (0)
+#define CAN_5kBPS		(1)
+#define CAN_10KBPS		(2)
+#define CAN_20KBPS		(3)
+#define CAN_25KBPS		(4)
+#define CAN_31K25BPS	(5)
+#define CAN_33KBPS		(6)
+#define CAN_40KBPS		(7)
+#define CAN_50KBPS		(8)
+#define CAN_80KBPS		(9)
+#define CAN_83K3BPS		(10)
+#define CAN_95KBPS		(11)
+#define CAN_100KBPS		(12)
+#define CAN_125KBPS		(13)
+#define CAN_200KBPS		(14)
+#define CAN_250KBPS		(15)
+#define CAN_500KBPS		(16)
+#define CAN_666KBPS		(17)
+#define CAN_1000KBPS	(18)
 
 class CanInterface
 
@@ -28,7 +45,7 @@ class CanInterface
 	};
 	~CanInterface() {};
 		
-	void init();
+	void init(uint8_t can_bus_nominal_speed);
 	void init_filtering();
 	
 	// function for CAN controller with only 1 buffer

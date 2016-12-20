@@ -71,7 +71,28 @@
 // MCP2515 crystal - 8 MHz
 // 
 #define MCP_8MHz_5kBPS	0x1f, 0xbf, 0x07 // enum 0 - CAN_5kBPS
-#define MCP2515_TIMINGS_500K 0x00, 0x90, 0x02   // PropSeg=3Tq, PS1=3Tq, PS2=3Tq, SamplePoint=62.5%, SJW=1
+
+// MCP2515 crystal - 12 MHz
+#if F_CPU == 12000000UL
+	#define MCP2515_TIMINGS_5kBPS 0x2f, 0xbf, 0x07
+	#define MCP2515_TIMINGS_10kBPS 0x17, 0xbf, 0x07
+	#define MCP2515_TIMINGS_20kBPS 0x0b, 0xbf, 0x07
+	#define MCP2515_TIMINGS_25kBPS 0x09, 0xbe, 0x07
+	#define MCP2515_TIMINGS_31K25BPS 0x07, 0xbe, 0x07
+	#define MCP2515_TIMINGS_33KBPS 0x0c, 0x92, 0x06 // -0.1% tolerance only
+	#define MCP2515_TIMINGS_40kBPS 0x05, 0xbf, 0x07
+	#define MCP2515_TIMINGS_50kBPS 0x04, 0xbe, 0x07
+	#define MCP2515_TIMINGS_80kBPS 0x02, 0xbe, 0x07
+	#define MCP2515_TIMINGS_83K3BPS 0x02, 0xbe, 0x07 // 0.04% tolerance only
+	#define MCP2515_TIMINGS_95kBPS 0x02, 0xad, 0x07 // 0.25% tolerance only
+	#define MCP2515_TIMINGS_100kBPS 0x02, 0xac, 0x07
+	#define MCP2515_TIMINGS_125kBPS 0x01, 0xbe, 0x07
+	#define MCP2515_TIMINGS_200kBPS 0x01, 0x9a, 0x06
+	#define MCP2515_TIMINGS_250kBPS 0x00, 0xbe, 0x07
+	#define MCP2515_TIMINGS_500kBPS 0x00, 0x91, 0x05
+	#define MCP2515_TIMINGS_666kBPS 0x00, 0x89, 0x03 // 0.1% tolerance only
+	#define MCP2515_TIMINGS_1000kBPS 0x00, 0x80, 0x02
+#endif
 
 
 
